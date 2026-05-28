@@ -88,6 +88,7 @@ say "Ensuring Cloud SQL Postgres instance '${DB_INSTANCE}' (this can take ~5 min
 if ! gcloud sql instances describe "$DB_INSTANCE" >/dev/null 2>&1; then
   gcloud sql instances create "$DB_INSTANCE" \
     --database-version=POSTGRES_16 \
+    --edition=ENTERPRISE \
     --tier="$DB_TIER" \
     --region="$REGION" \
     --storage-auto-increase \
