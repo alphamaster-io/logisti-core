@@ -13,6 +13,8 @@ FROM base AS builder
 COPY --from=deps /repo/node_modules ./node_modules
 COPY --from=deps /repo/apps/web/node_modules ./apps/web/node_modules
 COPY . .
+# shared's package.json points at dist/, so it must be built before the web build
+RUN pnpm --filter @logisti-core/shared build
 RUN pnpm --filter @logisti-core/web build
 
 FROM node:22-alpine AS runner
