@@ -77,12 +77,11 @@ gcloud iam service-accounts describe "$SA_EMAIL" >/dev/null 2>&1 \
   || gcloud iam service-accounts create "$SA_NAME" \
        --display-name="LogistiCore Cloud Run runtime" --quiet
 
-for role in roles/cloudsql.client roles/secretmanager.secretAccessor; do
-  gcloud projects add-iam-policy-binding "$PROJECT_ID" \
-    --member="serviceAccount:${SA_EMAIL}" --role="$role" \
-    --condition=None --quiet >/dev/null
-done
-ok "Service account bound"
+# Resource-scoped bindings: cloudsql.client at the SQL instance, secretAccessor
+# at each secret. This avoids needing roles/resourcemanager.projectIamAdmin on
+# the deploy-time identity. (These bindings happen later in the script, once
+# the resources exist.)
+ok "Service account ensured"
 
 # ─── 4. Cloud SQL Postgres 16 ───────────────────────────────────────────────
 say "Ensuring Cloud SQL Postgres instance '${DB_INSTANCE}' (this can take ~5 min on first create)"
