@@ -3,16 +3,9 @@ FROM node:22-alpine AS base
 RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
 WORKDIR /repo
 
-FROM base AS deps
-COPY pnpm-workspace.yaml package.json pnpm-lock.yaml* ./
-COPY packages ./packages
-COPY apps/web/package.json ./apps/web/package.json
-RUN pnpm install --frozen-lockfile || pnpm install
-
 FROM base AS builder
-COPY --from=deps /repo/node_modules ./node_modules
-COPY --from=deps /repo/apps/web/node_modules ./apps/web/node_modules
 COPY . .
+RUN pnpm install --frozen-lockfile=false
 # shared's package.json points at dist/, so it must be built before the web build
 RUN pnpm --filter @logisti-core/shared build
 RUN pnpm --filter @logisti-core/web build
