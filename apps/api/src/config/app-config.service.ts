@@ -4,12 +4,15 @@ import { z } from 'zod';
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  // PORT is Cloud Run / generic PaaS convention; API_PORT is the local-dev override.
+  PORT: z.coerce.number().int().positive().optional(),
   API_PORT: z.coerce.number().int().positive().default(4000),
-  API_GLOBAL_PREFIX: z.string().default('api/v1'),
+  API_GLOBAL_PREFIX: z.string().default('api'),
   APP_URL: z.string().url().default('http://localhost:3000'),
   ALLOWED_ORIGINS: z.string().default('http://localhost:3000'),
   DATABASE_URL: z.string().url(),
-  REDIS_URL: z.string().url(),
+  // Optional — if empty/unset, an in-memory fallback is used (single-instance only).
+  REDIS_URL: z.string().optional().default(''),
   JWT_ACCESS_SECRET: z.string().min(32, 'JWT_ACCESS_SECRET must be at least 32 chars'),
   JWT_REFRESH_SECRET: z.string().min(32, 'JWT_REFRESH_SECRET must be at least 32 chars'),
   JWT_ACCESS_TTL: z.string().default('15m'),
@@ -27,6 +30,7 @@ export class AppConfigService {
   constructor(config: ConfigService) {
     const parsed = envSchema.safeParse({
       NODE_ENV: config.get<string>('NODE_ENV'),
+      PORT: config.get<string>('PORT'),
       API_PORT: config.get<string>('API_PORT'),
       API_GLOBAL_PREFIX: config.get<string>('API_GLOBAL_PREFIX'),
       APP_URL: config.get<string>('APP_URL'),
@@ -53,7 +57,7 @@ export class AppConfigService {
     return this.env.NODE_ENV === 'production';
   }
   get port() {
-    return this.env.API_PORT;
+    return this.env.PORT ?? this.env.API_PORT;
   }
   get globalPrefix() {
     return this.env.API_GLOBAL_PREFIX;

@@ -27,5 +27,6 @@ COPY --from=builder /repo/apps/api/node_modules ./apps/api/node_modules
 COPY --from=builder /repo/node_modules ./node_modules
 
 WORKDIR /app/apps/api
+# Cloud Run injects PORT; locally docker uses 4000.
 EXPOSE 4000
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/src/main.js"]
