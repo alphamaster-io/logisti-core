@@ -149,16 +149,14 @@ done
 # ─── 6. Build + push images via Cloud Build ─────────────────────────────────
 say "Building API image via Cloud Build"
 gcloud builds submit \
-  --tag "$API_IMAGE" \
-  --file apps/api/Dockerfile \
-  --machine-type=e2-highcpu-8 \
+  --config=infra/gcp/cloudbuild.api.yaml \
+  --substitutions=_IMAGE="$API_IMAGE" \
   .
 
 say "Building Web image via Cloud Build"
 gcloud builds submit \
-  --tag "$WEB_IMAGE" \
-  --file apps/web/Dockerfile \
-  --machine-type=e2-highcpu-8 \
+  --config=infra/gcp/cloudbuild.web.yaml \
+  --substitutions=_IMAGE="$WEB_IMAGE" \
   .
 ok "Images pushed"
 
