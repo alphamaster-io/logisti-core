@@ -180,7 +180,7 @@ gcloud run deploy "$API_SERVICE" \
   --max-instances=1 \
   --timeout=300 \
   --allow-unauthenticated \
-  --set-env-vars="NODE_ENV=production,LOG_LEVEL=info,API_GLOBAL_PREFIX=api,PORT=8080,REDIS_URL=,DATABASE_URL=${DATABASE_URL}" \
+  --set-env-vars="NODE_ENV=production,LOG_LEVEL=info,API_GLOBAL_PREFIX=api,REDIS_URL=,DATABASE_URL=${DATABASE_URL}" \
   --set-secrets="JWT_ACCESS_SECRET=logisti-jwt-access-secret:latest,JWT_REFRESH_SECRET=logisti-jwt-refresh-secret:latest" \
   --quiet
 
@@ -199,7 +199,7 @@ gcloud run deploy "$WEB_SERVICE" \
   --max-instances=1 \
   --timeout=60 \
   --allow-unauthenticated \
-  --set-env-vars="NODE_ENV=production,PORT=8080,NEXT_PUBLIC_API_BASE_URL=${API_URL}/api/v1,API_BASE_URL=${API_URL}/api/v1" \
+  --set-env-vars="NODE_ENV=production,NEXT_PUBLIC_API_BASE_URL=${API_URL}/api/v1,API_BASE_URL=${API_URL}/api/v1" \
   --quiet
 
 WEB_URL=$(gcloud run services describe "$WEB_SERVICE" --region="$REGION" --format='value(status.url)')
