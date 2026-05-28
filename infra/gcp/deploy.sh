@@ -59,6 +59,7 @@ gcloud services enable \
   artifactregistry.googleapis.com \
   cloudbuild.googleapis.com \
   iam.googleapis.com \
+  cloudresourcemanager.googleapis.com \
   --quiet
 ok "APIs enabled"
 
