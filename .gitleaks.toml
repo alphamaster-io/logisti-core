@@ -1,0 +1,8 @@
+# Gitleaks config — extends defaults; only customizations here.
+
+[allowlist]
+description = "Files allowed by convention"
+paths = [
+  '''\.env\.example$''',
+  '''CLAUDE\.md$''',
+]
