@@ -6,7 +6,12 @@ import { MemoryKv } from './memory-kv';
 // The subset of ioredis the rest of the app uses. MemoryKv satisfies the same shape.
 type KvClient = {
   get(key: string): Promise<string | null>;
-  set(key: string, value: string, mode?: string, ttlSeconds?: number): Promise<'OK' | string | null>;
+  set(
+    key: string,
+    value: string,
+    mode?: string,
+    ttlSeconds?: number,
+  ): Promise<'OK' | string | null>;
   incr(key: string): Promise<number>;
   expire(key: string, ttlSeconds: number): Promise<number>;
   del(key: string): Promise<number>;

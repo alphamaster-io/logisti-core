@@ -4,17 +4,18 @@ One-shot deploy script for Phase 1. Target: project `logisticore-497718`, region
 
 ## What it provisions
 
-| Resource | Type | Why |
-|---|---|---|
-| `logisti-core` | Artifact Registry repo | Hosts api + web images |
-| `logisti-core-db` | Cloud SQL Postgres 16 (db-f1-micro) | Application database |
-| Six secrets | Secret Manager | JWT secrets + DB password + seed passwords |
-| `logisti-core-run` | IAM service account | Cloud Run runtime identity (cloudsql.client + secretmanager.secretAccessor) |
-| `logisti-core-api` | Cloud Run service | NestJS backend, scale-to-zero, max-instances=1 |
-| `logisti-core-web` | Cloud Run service | Next.js frontend, scale-to-zero, max-instances=1 |
-| `logisti-core-seed` | Cloud Run Job | Runs `prisma db seed` once |
+| Resource            | Type                                | Why                                                                         |
+| ------------------- | ----------------------------------- | --------------------------------------------------------------------------- |
+| `logisti-core`      | Artifact Registry repo              | Hosts api + web images                                                      |
+| `logisti-core-db`   | Cloud SQL Postgres 16 (db-f1-micro) | Application database                                                        |
+| Six secrets         | Secret Manager                      | JWT secrets + DB password + seed passwords                                  |
+| `logisti-core-run`  | IAM service account                 | Cloud Run runtime identity (cloudsql.client + secretmanager.secretAccessor) |
+| `logisti-core-api`  | Cloud Run service                   | NestJS backend, scale-to-zero, max-instances=1                              |
+| `logisti-core-web`  | Cloud Run service                   | Next.js frontend, scale-to-zero, max-instances=1                            |
+| `logisti-core-seed` | Cloud Run Job                       | Runs `prisma db seed` once                                                  |
 
 **Not provisioned (intentional):**
+
 - Memorystore (Redis) — api uses an in-memory fallback for login lockout + idempotency; safe at max-instances=1.
 - Custom domain / SSL — Cloud Run's default `*.run.app` URLs are used. Add Cloud Run domain mapping later.
 - GCS / MinIO replacement — Phase 2.
@@ -48,14 +49,14 @@ The script is **idempotent** — re-running on an existing setup skips already-c
 
 ## Cost estimate
 
-| Component | Idle | Active |
-|---|---|---|
-| Cloud SQL db-f1-micro | ~$8/mo | ~$8/mo |
-| Cloud Run (api + web, scale-to-zero) | $0 | $0.000024/req-CPU-s |
-| Artifact Registry | <$1/mo | <$1/mo |
-| Secret Manager | <$1/mo | <$1/mo |
-| Cloud Build | per build (~$0.003 each) | n/a |
-| **Total at zero traffic** | **~$10/mo** | scales with usage |
+| Component                            | Idle                     | Active              |
+| ------------------------------------ | ------------------------ | ------------------- |
+| Cloud SQL db-f1-micro                | ~$8/mo                   | ~$8/mo              |
+| Cloud Run (api + web, scale-to-zero) | $0                       | $0.000024/req-CPU-s |
+| Artifact Registry                    | <$1/mo                   | <$1/mo              |
+| Secret Manager                       | <$1/mo                   | <$1/mo              |
+| Cloud Build                          | per build (~$0.003 each) | n/a                 |
+| **Total at zero traffic**            | **~$10/mo**              | scales with usage   |
 
 ## After deploy
 
