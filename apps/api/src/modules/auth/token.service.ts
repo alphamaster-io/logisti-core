@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { type JwtService } from '@nestjs/jwt';
+import { JwtService } from '@nestjs/jwt';
 import { createHash, randomBytes } from 'node:crypto';
-import { type AppConfigService } from '../../config/app-config.service';
-import { type PrismaService } from '../../prisma/prisma.service';
+import { AppConfigService } from '../../config/app-config.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import type { JwtAccessPayload } from './types/authenticated-user';
 
 interface RefreshContext {

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { type AppConfigService } from '../../config/app-config.service';
-import { type RedisService } from '../../redis/redis.service';
+import { AppConfigService } from '../../config/app-config.service';
+import { RedisService } from '../../redis/redis.service';
 
 @Injectable()
 export class LockoutService {

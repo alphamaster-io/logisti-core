@@ -19,7 +19,7 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 import { IdempotencyMiddleware } from './common/middleware/idempotency.middleware';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from './modules/auth/guards/permissions.guard';
-import { type MiddlewareConsumer, type NestModule } from '@nestjs/common';
+import { MiddlewareConsumer, NestModule } from '@nestjs/common';
 
 @Module({
   imports: [

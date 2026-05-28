@@ -1,5 +1,5 @@
-import { Injectable, Logger, type OnModuleDestroy, type OnModuleInit } from '@nestjs/common';
-import { type Prisma, PrismaClient } from '@prisma/client';
+import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Prisma, PrismaClient } from '@prisma/client';
 
 // Tables that support soft delete (have a `deletedAt` column).
 const SOFT_DELETE_MODELS = new Set<string>([

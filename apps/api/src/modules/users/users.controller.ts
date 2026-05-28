@@ -3,14 +3,14 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PERMISSIONS } from '@logisti-core/shared';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Permissions } from '../../common/decorators/permissions.decorator';
-import { type UsersService } from './users.service';
+import { UsersService } from './users.service';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user';
 import {
-  type AssignRoleDto,
-  type CreateUserDto,
-  type ListUsersQueryDto,
-  type UpdateMeDto,
-  type UpdateUserDto,
+  AssignRoleDto,
+  CreateUserDto,
+  ListUsersQueryDto,
+  UpdateMeDto,
+  UpdateUserDto,
 } from './dto/users.dto';
 
 @ApiBearerAuth('access-token')

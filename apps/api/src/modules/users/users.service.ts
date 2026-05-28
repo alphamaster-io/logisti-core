@@ -6,14 +6,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import * as argon2 from 'argon2';
-import { type PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user';
-import {
-  type CreateUserDto,
-  type ListUsersQueryDto,
-  type UpdateMeDto,
-  type UpdateUserDto,
-} from './dto/users.dto';
+import { CreateUserDto, ListUsersQueryDto, UpdateMeDto, UpdateUserDto } from './dto/users.dto';
 
 function parseSort(sort: string | undefined): {
   field: 'createdAt' | 'email';

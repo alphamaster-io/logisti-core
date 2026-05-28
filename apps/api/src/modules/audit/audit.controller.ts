@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PERMISSIONS } from '@logisti-core/shared';
 import { Permissions } from '../../common/decorators/permissions.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { type AuditService } from './audit.service';
+import { AuditService } from './audit.service';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user';
 
 @ApiBearerAuth('access-token')

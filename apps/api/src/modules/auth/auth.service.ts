@@ -6,9 +6,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import * as argon2 from 'argon2';
-import { type PrismaService } from '../../prisma/prisma.service';
-import { type TokenService } from './token.service';
-import { type LockoutService } from './lockout.service';
+import { PrismaService } from '../../prisma/prisma.service';
+import { TokenService } from './token.service';
+import { LockoutService } from './lockout.service';
 import type { AuthenticatedUser } from './types/authenticated-user';
 
 interface LoginContext {

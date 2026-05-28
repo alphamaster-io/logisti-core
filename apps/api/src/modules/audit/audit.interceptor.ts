@@ -1,15 +1,15 @@
 import {
-  type CallHandler,
-  type ExecutionContext,
+  CallHandler,
+  ExecutionContext,
   Inject,
   Injectable,
   Logger,
-  type NestInterceptor,
+  NestInterceptor,
   Optional,
 } from '@nestjs/common';
-import { type Reflector } from '@nestjs/core';
-import { type Prisma } from '@prisma/client';
-import { type Observable, tap } from 'rxjs';
+import { Reflector } from '@nestjs/core';
+import { Prisma } from '@prisma/client';
+import { Observable, tap } from 'rxjs';
 import { SKIP_AUDIT_KEY } from '../../common/decorators/skip-audit.decorator';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user';
 import { AuditService } from './audit.service';
