@@ -1,0 +1,19 @@
+# Gitleaks config — extends defaults; only customizations here.
+
+[allowlist]
+description = "Files allowed by convention"
+paths = [
+  '''\.env\.example$''',
+  '''CLAUDE\.md$''',
+  '''^README\.md$''',
+  '''^infra/gcp/.*$''',
+  '''^apps/api/prisma/seed\.ts$''',
+  '''^apps/api/src/modules/auth/dto/.*$''',
+]
+# Known bootstrap-only seed credentials (rotated immediately after first deploy).
+# Not real production secrets; listing them explicitly so gitleaks doesn't flag.
+regexes = [
+  '''AlphabyteMaster!2026''',
+  '''ChangeMe!Now-2026''',
+  '''DemoUser!Pass-2026''',
+]

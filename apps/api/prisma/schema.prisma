@@ -1,0 +1,301 @@
+// LogistiCore — Phase 1 schema.
+//
+// Design principles (carried over from the legacy ExSpeed audit):
+//  - tenant_id on every business table (multi-tenant from day 1)
+//  - soft delete via deletedAt; no row is ever truly removed in normal flow
+//  - audit_logs captures every mutation (interceptor-driven)
+//  - state changes are recorded as events; no enum-only state machines
+//  - no year-suffixed tables; created_at is the rolling axis
+//  - amounts are bigint minor units + currency code, never floats
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Tenant ────────────────────────────────────────────────────
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  currency  String   @default("HKD")
+  timezone  String   @default("Asia/Hong_Kong")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  users        User[]
+  branches     Branch[]
+  warehouses   Warehouse[]
+  zones        WarehouseZone[]
+  racks        Rack[]
+  bins         Bin[]
+  auditLogs    AuditLog[]
+  activityLogs ActivityLog[]
+
+  @@map("tenants")
+}
+
+// ─── Identity & access ────────────────────────────────────────
+model User {
+  id            String    @id @default(cuid())
+  tenantId      String
+  email         String
+  emailNormalized String
+  name          String
+  passwordHash  String
+  isActive      Boolean   @default(true)
+  // Master users can impersonate any role and switch branch context.
+  // Use sparingly. All master actions are still audited.
+  isMaster      Boolean   @default(false)
+  // When set, the user is acting as this role only (subset of their granted roles).
+  // For masters this can be any role key. Cleared on logout.
+  activeRoleKey String?
+  // Optional branch context override; masters can pick any branch.
+  activeBranchId String?
+  mfaEnabled    Boolean   @default(false)
+  mfaSecret     String?
+  failedLoginAttempts Int @default(0)
+  lockedUntil   DateTime?
+  lastLoginAt   DateTime?
+  branchId      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  tenant        Tenant              @relation(fields: [tenantId], references: [id])
+  branch        Branch?             @relation(fields: [branchId], references: [id])
+  roles         UserRole[]
+  refreshTokens RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
+  auditLogs     AuditLog[]
+  activityLogs  ActivityLog[]
+
+  @@unique([tenantId, emailNormalized])
+  @@index([tenantId])
+  @@index([branchId])
+  @@map("users")
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  name        String
+  description String?
+  isSystem    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  permissions RolePermission[]
+  users       UserRole[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+
+  roles RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model UserRole {
+  userId String
+  roleId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+model RefreshToken {
+  id         String    @id @default(cuid())
+  userId     String
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  replacedById String?
+  ip         String?
+  userAgent  String?
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+// ─── Warehouse structure ──────────────────────────────────────
+model Branch {
+  id        String   @id @default(cuid())
+  tenantId  String
+  code      String
+  name      String
+  region    String?
+  timezone  String   @default("Asia/Hong_Kong")
+  address   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id])
+  users      User[]
+  warehouses Warehouse[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@map("branches")
+}
+
+model Warehouse {
+  id        String   @id @default(cuid())
+  tenantId  String
+  branchId  String
+  code      String
+  name      String
+  address   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  tenant Tenant          @relation(fields: [tenantId], references: [id])
+  branch Branch          @relation(fields: [branchId], references: [id])
+  zones  WarehouseZone[]
+
+  @@unique([tenantId, code])
+  @@index([branchId])
+  @@map("warehouses")
+}
+
+model WarehouseZone {
+  id          String   @id @default(cuid())
+  tenantId    String
+  warehouseId String
+  code        String
+  name        String
+  zoneType    String   @default("storage")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  tenant    Tenant    @relation(fields: [tenantId], references: [id])
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
+  racks     Rack[]
+
+  @@unique([warehouseId, code])
+  @@map("warehouse_zones")
+}
+
+model Rack {
+  id        String   @id @default(cuid())
+  tenantId  String
+  zoneId    String
+  code      String
+  rows      Int      @default(1)
+  columns   Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  tenant Tenant        @relation(fields: [tenantId], references: [id])
+  zone   WarehouseZone @relation(fields: [zoneId], references: [id])
+  bins   Bin[]
+
+  @@unique([zoneId, code])
+  @@map("racks")
+}
+
+model Bin {
+  id        String   @id @default(cuid())
+  tenantId  String
+  rackId    String
+  code      String
+  capacity  Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  rack   Rack   @relation(fields: [rackId], references: [id])
+
+  @@unique([rackId, code])
+  @@map("bins")
+}
+
+// ─── Audit ────────────────────────────────────────────────────
+model AuditLog {
+  id          String   @id @default(cuid())
+  tenantId    String?
+  userId      String?
+  action      String
+  entityType  String
+  entityId    String?
+  before      Json?
+  after       Json?
+  ip          String?
+  userAgent   String?
+  requestId   String?
+  createdAt   DateTime @default(now())
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id])
+
+  @@index([tenantId, createdAt])
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@map("audit_logs")
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  tenantId  String?
+  userId    String?
+  event     String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id])
+
+  @@index([tenantId, createdAt])
+  @@index([userId])
+  @@map("activity_logs")
+}

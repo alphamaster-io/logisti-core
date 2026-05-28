@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# Coverage and test outputs
+coverage/
+*.lcov
+.nyc_output/
+
+# Env (NEVER commit real env)
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Docker
+.docker/
+docker-volumes/
+
+# Prisma generated client
+apps/api/src/generated/
+
+# Next.js
+.next/
+next-env.d.ts
+
+# Misc
+.turbo/
+.cache/
+*.tgz
