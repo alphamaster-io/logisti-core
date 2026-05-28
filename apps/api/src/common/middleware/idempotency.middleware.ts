@@ -1,6 +1,6 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Injectable, type NestMiddleware } from '@nestjs/common';
 import type { NextFunction, Request, Response } from 'express';
-import { RedisService } from '../../redis/redis.service';
+import { type RedisService } from '../../redis/redis.service';
 
 const TTL_SECONDS = 24 * 60 * 60;
 const KEY_HEADER = 'idempotency-key';

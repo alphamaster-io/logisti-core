@@ -1,4 +1,4 @@
-import { ExecutionContext, ForbiddenException } from '@nestjs/common';
+import { type ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PermissionsGuard } from './permissions.guard';
 
@@ -48,8 +48,6 @@ describe('PermissionsGuard', () => {
       .mockReturnValueOnce(false)
       .mockReturnValueOnce(['users.create']);
     const guard = new PermissionsGuard(reflector);
-    expect(
-      guard.canActivate(makeCtx({ permissions: ['users.create', 'users.read'] })),
-    ).toBe(true);
+    expect(guard.canActivate(makeCtx({ permissions: ['users.create', 'users.read'] }))).toBe(true);
   });
 });

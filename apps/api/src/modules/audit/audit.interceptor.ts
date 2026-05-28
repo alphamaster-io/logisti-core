@@ -1,15 +1,15 @@
 import {
-  CallHandler,
-  ExecutionContext,
+  type CallHandler,
+  type ExecutionContext,
   Inject,
   Injectable,
   Logger,
-  NestInterceptor,
+  type NestInterceptor,
   Optional,
 } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { Prisma } from '@prisma/client';
-import { Observable, tap } from 'rxjs';
+import { type Reflector } from '@nestjs/core';
+import { type Prisma } from '@prisma/client';
+import { type Observable, tap } from 'rxjs';
 import { SKIP_AUDIT_KEY } from '../../common/decorators/skip-audit.decorator';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user';
 import { AuditService } from './audit.service';
@@ -56,7 +56,10 @@ export class AuditInterceptor implements NestInterceptor {
               tenantId: req.user?.tenantId ?? null,
               userId: req.user?.id ?? null,
               action: `${req.method.toLowerCase()} ${req.originalUrl}`,
-              entityType: ctx.getClass().name.replace(/Controller$/, '').toLowerCase(),
+              entityType: ctx
+                .getClass()
+                .name.replace(/Controller$/, '')
+                .toLowerCase(),
               entityId: this.guessEntityId(response, req),
               after: this.safeJson(response),
               ip: req.ip ?? null,

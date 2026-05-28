@@ -6,9 +6,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import * as argon2 from 'argon2';
-import { PrismaService } from '../../prisma/prisma.service';
-import { TokenService } from './token.service';
-import { LockoutService } from './lockout.service';
+import { type PrismaService } from '../../prisma/prisma.service';
+import { type TokenService } from './token.service';
+import { type LockoutService } from './lockout.service';
 import type { AuthenticatedUser } from './types/authenticated-user';
 
 interface LoginContext {
@@ -33,12 +33,19 @@ export class AuthService {
 
     const user = await this.prisma.user.findFirst({
       where: { emailNormalized, isActive: true },
-      include: { roles: { include: { role: { include: { permissions: { include: { permission: true } } } } } }, branch: true },
+      include: {
+        roles: {
+          include: { role: { include: { permissions: { include: { permission: true } } } } },
+        },
+        branch: true,
+      },
     });
 
     // Constant-time-ish failure: still hash to dodge user-enumeration via timing.
     if (!user) {
-      await argon2.hash('dummy-to-equalize-timing', { type: argon2.argon2id }).catch(() => undefined);
+      await argon2
+        .hash('dummy-to-equalize-timing', { type: argon2.argon2id })
+        .catch(() => undefined);
       await this.lockout.recordFailure(emailNormalized);
       throw new UnauthorizedException('Invalid credentials');
     }

@@ -6,9 +6,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import * as argon2 from 'argon2';
-import { PrismaService } from '../../prisma/prisma.service';
+import { type PrismaService } from '../../prisma/prisma.service';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user';
-import { CreateUserDto, ListUsersQueryDto, UpdateMeDto, UpdateUserDto } from './dto/users.dto';
+import {
+  type CreateUserDto,
+  type ListUsersQueryDto,
+  type UpdateMeDto,
+  type UpdateUserDto,
+} from './dto/users.dto';
 
 function parseSort(sort: string | undefined): {
   field: 'createdAt' | 'email';
@@ -100,7 +105,7 @@ export class UsersService {
 
     const hasMore = items.length > limit;
     const data = (hasMore ? items.slice(0, limit) : items).map((u) => this.serialize(u));
-    const nextCursor = hasMore ? items[limit - 1]?.id ?? null : null;
+    const nextCursor = hasMore ? (items[limit - 1]?.id ?? null) : null;
 
     return { data, hasMore, nextCursor };
   }

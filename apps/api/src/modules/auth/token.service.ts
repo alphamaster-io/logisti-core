@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { type JwtService } from '@nestjs/jwt';
 import { createHash, randomBytes } from 'node:crypto';
-import { AppConfigService } from '../../config/app-config.service';
-import { PrismaService } from '../../prisma/prisma.service';
+import { type AppConfigService } from '../../config/app-config.service';
+import { type PrismaService } from '../../prisma/prisma.service';
 import type { JwtAccessPayload } from './types/authenticated-user';
 
 interface RefreshContext {
@@ -56,14 +56,15 @@ export class TokenService {
     return token;
   }
 
-  async rotateRefresh(
-    oldToken: string,
-    userId: string,
-    ctx: RefreshContext = {},
-  ): Promise<string> {
+  async rotateRefresh(oldToken: string, userId: string, ctx: RefreshContext = {}): Promise<string> {
     const oldHash = this.hash(oldToken);
     const existing = await this.prisma.refreshToken.findUnique({ where: { tokenHash: oldHash } });
-    if (!existing || existing.userId !== userId || existing.revokedAt || existing.expiresAt < new Date()) {
+    if (
+      !existing ||
+      existing.userId !== userId ||
+      existing.revokedAt ||
+      existing.expiresAt < new Date()
+    ) {
       throw new Error('refresh_invalid');
     }
     const newToken = randomBytes(48).toString('base64url');

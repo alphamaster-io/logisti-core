@@ -3,7 +3,14 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Boxes, LayoutDashboard, ScrollText, Users, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import {
+  Boxes,
+  LayoutDashboard,
+  ScrollText,
+  Users,
+  ChevronsLeft,
+  ChevronsRight,
+} from 'lucide-react';
 import { PERMISSIONS } from '@logisti-core/shared';
 import { SidebarRoot, useSidebar } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
@@ -21,7 +28,12 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/users', label: 'Users', icon: Users, permission: PERMISSIONS.USERS_READ },
-  { href: '/warehouses', label: 'Warehouses', icon: Boxes, permission: PERMISSIONS.WAREHOUSES_READ },
+  {
+    href: '/warehouses',
+    label: 'Warehouses',
+    icon: Boxes,
+    permission: PERMISSIONS.WAREHOUSES_READ,
+  },
   { href: '/audit', label: 'Audit Log', icon: ScrollText, permission: PERMISSIONS.AUDIT_READ },
 ];
 

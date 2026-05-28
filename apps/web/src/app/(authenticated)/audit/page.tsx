@@ -31,7 +31,8 @@ export default function AuditPage() {
 
   const query = useQuery({
     queryKey: ['audit', cursor ?? ''],
-    queryFn: () => api.get<PaginatedResponse<AuditLog>>(`/api/proxy/audit-logs?${params.toString()}`),
+    queryFn: () =>
+      api.get<PaginatedResponse<AuditLog>>(`/api/proxy/audit-logs?${params.toString()}`),
     refetchInterval: autoRefresh ? 30_000 : false,
     retry: false,
   });
@@ -61,7 +62,8 @@ export default function AuditPage() {
     {
       key: 'entityId',
       header: 'Entity ID',
-      cell: (r) => (r.entityId ? <span className="font-mono text-xs">{truncate(r.entityId, 14)}</span> : '—'),
+      cell: (r) =>
+        r.entityId ? <span className="font-mono text-xs">{truncate(r.entityId, 14)}</span> : '—',
     },
     {
       key: 'requestId',

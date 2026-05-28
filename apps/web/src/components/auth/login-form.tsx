@@ -9,7 +9,14 @@ import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { ApiError } from '@/lib/api-client';
 
 export function LoginForm() {
@@ -31,7 +38,11 @@ export function LoginForm() {
       });
       if (!res.ok) {
         const problem = await res.json().catch(() => null);
-        throw new ApiError(problem?.detail ?? problem?.title ?? 'Sign-in failed', res.status, problem ?? undefined);
+        throw new ApiError(
+          problem?.detail ?? problem?.title ?? 'Sign-in failed',
+          res.status,
+          problem ?? undefined,
+        );
       }
       toast.success('Signed in');
       const next = searchParams.get('next') ?? '/dashboard';
@@ -56,12 +67,7 @@ export function LoginForm() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input
-                  type="email"
-                  autoComplete="email"
-                  placeholder="you@example.com"
-                  {...field}
-                />
+                <Input type="email" autoComplete="email" placeholder="you@example.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { type ConfigService } from '@nestjs/config';
 import { z } from 'zod';
 
 const envSchema = z.object({
@@ -59,7 +59,9 @@ export class AppConfigService {
     return this.env.API_GLOBAL_PREFIX;
   }
   get allowedOrigins() {
-    return this.env.ALLOWED_ORIGINS.split(',').map((s) => s.trim()).filter(Boolean);
+    return this.env.ALLOWED_ORIGINS.split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
   }
   get databaseUrl() {
     return this.env.DATABASE_URL;

@@ -1,18 +1,18 @@
 import { Body, Controller, HttpCode, HttpStatus, Post, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
-import { AuthService } from './auth.service';
+import { type AuthService } from './auth.service';
 import { Public } from '../../common/decorators/public.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { SkipAudit } from '../../common/decorators/skip-audit.decorator';
 import type { AuthenticatedUser } from './types/authenticated-user';
 import {
-  LoginDto,
-  PasswordResetConfirmDto,
-  PasswordResetRequestDto,
-  RefreshDto,
-  SwitchBranchDto,
-  SwitchRoleDto,
+  type LoginDto,
+  type PasswordResetConfirmDto,
+  type PasswordResetRequestDto,
+  type RefreshDto,
+  type SwitchBranchDto,
+  type SwitchRoleDto,
 } from './dto/auth.dto';
 
 @ApiTags('auth')

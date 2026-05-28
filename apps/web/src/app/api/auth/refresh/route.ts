@@ -23,7 +23,11 @@ export async function POST() {
     response.cookies.set(REFRESH_COOKIE, '', { path: '/api/auth', maxAge: 0 });
     return response;
   }
-  const { accessToken, refreshToken: newRefresh, expiresIn } = data as {
+  const {
+    accessToken,
+    refreshToken: newRefresh,
+    expiresIn,
+  } = data as {
     accessToken: string;
     refreshToken: string;
     expiresIn: number;

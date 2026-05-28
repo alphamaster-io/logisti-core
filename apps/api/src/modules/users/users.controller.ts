@@ -1,25 +1,16 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PERMISSIONS } from '@logisti-core/shared';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Permissions } from '../../common/decorators/permissions.decorator';
-import { UsersService } from './users.service';
+import { type UsersService } from './users.service';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user';
 import {
-  AssignRoleDto,
-  CreateUserDto,
-  ListUsersQueryDto,
-  UpdateMeDto,
-  UpdateUserDto,
+  type AssignRoleDto,
+  type CreateUserDto,
+  type ListUsersQueryDto,
+  type UpdateMeDto,
+  type UpdateUserDto,
 } from './dto/users.dto';
 
 @ApiBearerAuth('access-token')

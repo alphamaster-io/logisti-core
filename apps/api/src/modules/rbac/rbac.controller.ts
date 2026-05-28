@@ -2,7 +2,7 @@ import { Controller, Get } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PERMISSIONS } from '@logisti-core/shared';
 import { Permissions } from '../../common/decorators/permissions.decorator';
-import { PrismaService } from '../../prisma/prisma.service';
+import { type PrismaService } from '../../prisma/prisma.service';
 
 @ApiBearerAuth('access-token')
 @ApiTags('rbac')

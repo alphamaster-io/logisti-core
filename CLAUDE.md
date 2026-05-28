@@ -10,13 +10,13 @@ Reference for AI agents and humans working in the **LogistiCore** repository. Re
 
 **Current phase:** Phase 1 — Foundation (this scaffold).
 
-| Phase | Scope | Status |
-|---|---|---|
-| 1. Foundation | Monorepo, auth, RBAC, users, audit, warehouse-read API, web shell | **in progress / this PR** |
-| 2. Inventory | Products, SKUs, batches, receiving, stock movements, putaway | not started |
-| 3. Cargo & Shipments | Shipments, dispatch, tracking, delivery | not started |
-| 4. PWA & Real-time | Offline-first IndexedDB, Socket.IO, push notifications, queues | not started |
-| 5. Analytics | Real KPI dashboards, reports, exports | not started |
+| Phase                | Scope                                                             | Status                    |
+| -------------------- | ----------------------------------------------------------------- | ------------------------- |
+| 1. Foundation        | Monorepo, auth, RBAC, users, audit, warehouse-read API, web shell | **in progress / this PR** |
+| 2. Inventory         | Products, SKUs, batches, receiving, stock movements, putaway      | not started               |
+| 3. Cargo & Shipments | Shipments, dispatch, tracking, delivery                           | not started               |
+| 4. PWA & Real-time   | Offline-first IndexedDB, Socket.IO, push notifications, queues    | not started               |
+| 5. Analytics         | Real KPI dashboards, reports, exports                             | not started               |
 
 **Target users:** branch counter staff, warehouse operators, dispatchers, drivers, inventory managers, auditors, super admins, and a **master user** (`alphabyte.master`) who can impersonate any role, switch any branch, and assign roles on behalf of others.
 
@@ -24,24 +24,24 @@ Reference for AI agents and humans working in the **LogistiCore** repository. Re
 
 ## 2. Tech Stack
 
-| Layer | Tech | Notes |
-|---|---|---|
-| Monorepo | **pnpm workspaces** | Turbo can be added later if build times warrant it |
-| Backend | **NestJS 10** + TypeScript 5 (strict) | Procedural-PHP→DI-modular migration |
-| DB | **PostgreSQL 16** | Single DB, multi-tenant via `tenant_id` column |
-| ORM | **Prisma 5** | Soft-delete middleware enforces `deletedAt` |
-| Cache / locks | **Redis 7** (`ioredis`) | Login lockout, idempotency keys, future BullMQ |
-| Auth | **JWT** (access 15m, refresh 7d) + **Argon2id** password hashing | Refresh tokens stored hashed in DB; revocable |
-| Validation | **Zod** (shared) + **class-validator** (NestJS DTOs) | Schemas in `packages/shared` used by both sides |
-| Logging | **Pino** (`nestjs-pino`) | Structured JSON in prod, pretty in dev; correlation IDs |
-| Docs | **OpenAPI / Swagger UI** at `/api/v1/docs` | Bearer auth wired |
-| Frontend | **Next.js 15** (App Router) + React 19 + TS strict | PWA-ready (manifest + service worker registration) |
-| Styling | **Tailwind CSS 3** + **shadcn/ui** | Light/dark via `next-themes` |
-| Data | **TanStack Query 5** | Server cache |
-| Client state | **Zustand 4** | Lightweight UI state only |
-| Forms | **react-hook-form 7** + **zod** | Schemas come from `packages/shared` |
-| Infra | **Docker Compose** (Postgres + Redis + MinIO + api + web) | One-command local dev |
-| CI | **GitHub Actions** | lint + typecheck + test + build + security scan |
+| Layer         | Tech                                                             | Notes                                                   |
+| ------------- | ---------------------------------------------------------------- | ------------------------------------------------------- |
+| Monorepo      | **pnpm workspaces**                                              | Turbo can be added later if build times warrant it      |
+| Backend       | **NestJS 10** + TypeScript 5 (strict)                            | Procedural-PHP→DI-modular migration                     |
+| DB            | **PostgreSQL 16**                                                | Single DB, multi-tenant via `tenant_id` column          |
+| ORM           | **Prisma 5**                                                     | Soft-delete middleware enforces `deletedAt`             |
+| Cache / locks | **Redis 7** (`ioredis`)                                          | Login lockout, idempotency keys, future BullMQ          |
+| Auth          | **JWT** (access 15m, refresh 7d) + **Argon2id** password hashing | Refresh tokens stored hashed in DB; revocable           |
+| Validation    | **Zod** (shared) + **class-validator** (NestJS DTOs)             | Schemas in `packages/shared` used by both sides         |
+| Logging       | **Pino** (`nestjs-pino`)                                         | Structured JSON in prod, pretty in dev; correlation IDs |
+| Docs          | **OpenAPI / Swagger UI** at `/api/v1/docs`                       | Bearer auth wired                                       |
+| Frontend      | **Next.js 15** (App Router) + React 19 + TS strict               | PWA-ready (manifest + service worker registration)      |
+| Styling       | **Tailwind CSS 3** + **shadcn/ui**                               | Light/dark via `next-themes`                            |
+| Data          | **TanStack Query 5**                                             | Server cache                                            |
+| Client state  | **Zustand 4**                                                    | Lightweight UI state only                               |
+| Forms         | **react-hook-form 7** + **zod**                                  | Schemas come from `packages/shared`                     |
+| Infra         | **Docker Compose** (Postgres + Redis + MinIO + api + web)        | One-command local dev                                   |
+| CI            | **GitHub Actions**                                               | lint + typecheck + test + build + security scan         |
 
 ---
 
@@ -118,9 +118,11 @@ logisti-core/
 ## 4. Architecture & Conventions
 
 ### Multi-tenant from day 1
+
 Every business table has `tenant_id`. `TenantScopeInterceptor` reads the tenant from the authenticated user and constrains queries. Phase 1 ships single-tenant in seed data, but the wire is there.
 
 ### Auth model
+
 - Password hashing: **Argon2id** (`argon2` package). No bcrypt.
 - Access token: 15 min JWT signed with `JWT_ACCESS_SECRET`.
 - Refresh token: 7-day random opaque token; **hashed in DB** (`refresh_tokens` table); rotated on every refresh; revocable.
@@ -129,6 +131,7 @@ Every business table has `tenant_id`. `TenantScopeInterceptor` reads the tenant 
 - MFA: schema fields present (`mfaSecret`, `mfaEnabled`). TOTP flow lands in a future phase.
 
 ### RBAC
+
 - Tables: `roles`, `permissions`, `role_permissions`, `user_roles`.
 - 7 seeded roles: `super_admin`, `warehouse_admin`, `warehouse_staff`, `dispatcher`, `driver`, `inventory_manager`, `viewer`.
 - ~30 atomic permissions: `users.create`, `inventory.adjust`, `shipments.dispatch`, etc. (see `packages/shared/src/rbac/permissions.ts`).
@@ -136,7 +139,9 @@ Every business table has `tenant_id`. `TenantScopeInterceptor` reads the tenant 
 - **No hardcoded user whitelists anywhere.** Authorization is purely permission-key driven.
 
 ### Master user (`alphabyte.master`)
+
 A special account with `isMaster: true`. Capabilities:
+
 - **Has every role** attached, so its full-permission set is the union of all roles.
 - **`POST /auth/switch-role`** — set `activeRoleKey` on the session. While set, effective permissions are restricted to that single role. Use to test how an operator sees the app.
 - **`POST /auth/switch-branch`** — set `activeBranchId`. The `TenantScopeInterceptor` honours this when filtering branch-scoped data.
@@ -145,26 +150,33 @@ A special account with `isMaster: true`. Capabilities:
 - Seed credentials in `.env.example`.
 
 ### Soft delete
+
 All business tables have `deletedAt`. A Prisma middleware filters them out by default. Hard delete is super_admin-only and explicitly audited.
 
 ### Audit
+
 `AuditInterceptor` records every mutating HTTP request (`POST`, `PATCH`, `PUT`, `DELETE`) to `audit_logs` with: `action`, `entityType`, `entityId`, `before`/`after` (jsonb), `ip`, `userAgent`, `requestId`. Use `@SkipAudit()` decorator only when truly necessary (and document why).
 
 ### Money / amounts
+
 Stored as **bigint minor units** + currency code string. Never floats. Phase 1 doesn't transact money yet, but schema and config are ready.
 
 ### Idempotency
+
 `Idempotency-Key` header middleware stores `key → response` in Redis (24h). Phase 1 wires the skeleton; Phase 2 intake endpoints will require it.
 
 ### Error format
+
 All errors return **RFC 7807 problem+json** via `ProblemDetailsFilter`. Include `requestId` for correlation.
 
 ### Validation
+
 - All DTOs use `class-validator` (server-side authoritative).
 - The same Zod schemas in `packages/shared` are used by the web `react-hook-form` resolvers.
 - **The server never trusts the client.** Even if the web form validates, the API re-validates.
 
 ### Pagination
+
 Cursor-based by default (`?cursor=&limit=&q=&sort=`). Response shape: `{ data, nextCursor, hasMore }`.
 
 ---
@@ -188,18 +200,18 @@ These rules exist because the legacy app paid the price for ignoring them:
 
 ## 6. Common Tasks
 
-| Task | Where |
-|---|---|
-| Run locally | `make up` (postgres + redis + minio + api + web) |
-| Apply migrations | `make migrate` |
-| Seed demo data | `make seed` |
-| Add a permission | `packages/shared/src/rbac/permissions.ts` → update `ROLE_PERMISSIONS` → re-seed |
-| Add a role | `packages/shared/src/rbac/roles.ts` → update `ROLE_PERMISSIONS` → re-seed |
-| Add a NestJS module | `apps/api/src/modules/<name>/` → import into `AppModule` |
-| Add a protected endpoint | `@Permissions(PERMISSIONS.X_Y)` decorator on the handler |
-| Add a new page | `apps/web/src/app/(authenticated)/<name>/page.tsx` + sidebar entry |
-| Add a shared schema | `packages/shared/src/schemas/<name>.ts` + re-export from `index.ts` |
-| Skip audit on an endpoint | `@SkipAudit('reason')` — document why |
+| Task                      | Where                                                                           |
+| ------------------------- | ------------------------------------------------------------------------------- |
+| Run locally               | `make up` (postgres + redis + minio + api + web)                                |
+| Apply migrations          | `make migrate`                                                                  |
+| Seed demo data            | `make seed`                                                                     |
+| Add a permission          | `packages/shared/src/rbac/permissions.ts` → update `ROLE_PERMISSIONS` → re-seed |
+| Add a role                | `packages/shared/src/rbac/roles.ts` → update `ROLE_PERMISSIONS` → re-seed       |
+| Add a NestJS module       | `apps/api/src/modules/<name>/` → import into `AppModule`                        |
+| Add a protected endpoint  | `@Permissions(PERMISSIONS.X_Y)` decorator on the handler                        |
+| Add a new page            | `apps/web/src/app/(authenticated)/<name>/page.tsx` + sidebar entry              |
+| Add a shared schema       | `packages/shared/src/schemas/<name>.ts` + re-export from `index.ts`             |
+| Skip audit on an endpoint | `@SkipAudit('reason')` — document why                                           |
 
 ---
 
@@ -216,16 +228,16 @@ open http://localhost:3000/login
 
 Default credentials (from `.env.example`):
 
-| Account | Email | Password | Notes |
-|---|---|---|---|
-| **Master** | `alphabyte.master@logisti-core.local` | `AlphabyteMaster!2026` | All roles, all branches, can impersonate + assign |
-| Super Admin | `admin@logisti-core.local` | `ChangeMe!Now-2026` | Full perms but cannot impersonate |
-| Warehouse Admin | `wh.admin@logisti-core.local` | `DemoUser!Pass-2026` | |
-| Warehouse Staff | `wh.staff@logisti-core.local` | `DemoUser!Pass-2026` | |
-| Dispatcher | `dispatcher@logisti-core.local` | `DemoUser!Pass-2026` | |
-| Driver | `driver@logisti-core.local` | `DemoUser!Pass-2026` | |
-| Inventory Manager | `inventory@logisti-core.local` | `DemoUser!Pass-2026` | |
-| Viewer | `viewer@logisti-core.local` | `DemoUser!Pass-2026` | |
+| Account           | Email                                 | Password               | Notes                                             |
+| ----------------- | ------------------------------------- | ---------------------- | ------------------------------------------------- |
+| **Master**        | `alphabyte.master@logisti-core.local` | `AlphabyteMaster!2026` | All roles, all branches, can impersonate + assign |
+| Super Admin       | `admin@logisti-core.local`            | `ChangeMe!Now-2026`    | Full perms but cannot impersonate                 |
+| Warehouse Admin   | `wh.admin@logisti-core.local`         | `DemoUser!Pass-2026`   |                                                   |
+| Warehouse Staff   | `wh.staff@logisti-core.local`         | `DemoUser!Pass-2026`   |                                                   |
+| Dispatcher        | `dispatcher@logisti-core.local`       | `DemoUser!Pass-2026`   |                                                   |
+| Driver            | `driver@logisti-core.local`           | `DemoUser!Pass-2026`   |                                                   |
+| Inventory Manager | `inventory@logisti-core.local`        | `DemoUser!Pass-2026`   |                                                   |
+| Viewer            | `viewer@logisti-core.local`           | `DemoUser!Pass-2026`   |                                                   |
 
 **Rotate all of these before deploying anywhere.**
 

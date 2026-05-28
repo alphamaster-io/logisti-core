@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { PrismaService } from '../../prisma/prisma.service';
+import { type PrismaService } from '../../prisma/prisma.service';
 
 export interface AuditRecord {
   tenantId?: string | null;
@@ -46,7 +46,7 @@ export class AuditService {
     const hasMore = items.length > limit;
     return {
       data: hasMore ? items.slice(0, limit) : items,
-      nextCursor: hasMore ? items[limit - 1]?.id ?? null : null,
+      nextCursor: hasMore ? (items[limit - 1]?.id ?? null) : null,
       hasMore,
     };
   }

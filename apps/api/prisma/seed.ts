@@ -197,7 +197,9 @@ async function main() {
   //   - switch branch context across all branches
   //   - assign/revoke roles on other users
   // All actions remain audited.
-  const masterEmail = (process.env['SEED_MASTER_EMAIL'] ?? 'alphabyte.master@logisti-core.local').toLowerCase();
+  const masterEmail = (
+    process.env['SEED_MASTER_EMAIL'] ?? 'alphabyte.master@logisti-core.local'
+  ).toLowerCase();
   const masterPassword = process.env['SEED_MASTER_PASSWORD'] ?? 'AlphabyteMaster!2026';
   const masterHash = await argon2.hash(masterPassword, { type: argon2.argon2id });
 
@@ -227,12 +229,42 @@ async function main() {
 
   // ── A few more demo users ────────────────────────────────────
   const demoUsers: Array<{ email: string; name: string; role: string; branchCode: string }> = [
-    { email: 'wh.admin@logisti-core.local', name: 'Warehouse Admin', role: ROLES.WAREHOUSE_ADMIN, branchCode: 'HK-MAIN' },
-    { email: 'wh.staff@logisti-core.local', name: 'Warehouse Staff', role: ROLES.WAREHOUSE_STAFF, branchCode: 'HK-MAIN' },
-    { email: 'dispatcher@logisti-core.local', name: 'Dispatcher', role: ROLES.DISPATCHER, branchCode: 'MNL-MAIN' },
-    { email: 'driver@logisti-core.local', name: 'Driver', role: ROLES.DRIVER, branchCode: 'MNL-MAIN' },
-    { email: 'inventory@logisti-core.local', name: 'Inventory Manager', role: ROLES.INVENTORY_MANAGER, branchCode: 'HK-MAIN' },
-    { email: 'viewer@logisti-core.local', name: 'Viewer', role: ROLES.VIEWER, branchCode: 'HK-MAIN' },
+    {
+      email: 'wh.admin@logisti-core.local',
+      name: 'Warehouse Admin',
+      role: ROLES.WAREHOUSE_ADMIN,
+      branchCode: 'HK-MAIN',
+    },
+    {
+      email: 'wh.staff@logisti-core.local',
+      name: 'Warehouse Staff',
+      role: ROLES.WAREHOUSE_STAFF,
+      branchCode: 'HK-MAIN',
+    },
+    {
+      email: 'dispatcher@logisti-core.local',
+      name: 'Dispatcher',
+      role: ROLES.DISPATCHER,
+      branchCode: 'MNL-MAIN',
+    },
+    {
+      email: 'driver@logisti-core.local',
+      name: 'Driver',
+      role: ROLES.DRIVER,
+      branchCode: 'MNL-MAIN',
+    },
+    {
+      email: 'inventory@logisti-core.local',
+      name: 'Inventory Manager',
+      role: ROLES.INVENTORY_MANAGER,
+      branchCode: 'HK-MAIN',
+    },
+    {
+      email: 'viewer@logisti-core.local',
+      name: 'Viewer',
+      role: ROLES.VIEWER,
+      branchCode: 'HK-MAIN',
+    },
   ];
   const demoPassword = 'DemoUser!Pass-2026';
   const demoHash = await argon2.hash(demoPassword, { type: argon2.argon2id });

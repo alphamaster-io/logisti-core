@@ -36,10 +36,15 @@ describe('LoginForm', () => {
 
   it('submits the form when inputs are valid', async () => {
     const fetchMock = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ user: { id: '1', email: 'a@b.com', name: 'A', roles: [], permissions: [], tenantId: 't' } }), {
-        status: 200,
-        headers: { 'content-type': 'application/json' },
-      }),
+      new Response(
+        JSON.stringify({
+          user: { id: '1', email: 'a@b.com', name: 'A', roles: [], permissions: [], tenantId: 't' },
+        }),
+        {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        },
+      ),
     );
     vi.stubGlobal('fetch', fetchMock);
 

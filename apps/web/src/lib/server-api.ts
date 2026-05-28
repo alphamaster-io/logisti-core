@@ -9,7 +9,10 @@ export const ACCESS_COOKIE = 'lc_access';
 export const REFRESH_COOKIE = 'lc_refresh';
 
 export function backendUrl(path: string): string {
-  const base = process.env.API_BASE_URL ?? process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000/api/v1';
+  const base =
+    process.env.API_BASE_URL ??
+    process.env.NEXT_PUBLIC_API_BASE_URL ??
+    'http://localhost:4000/api/v1';
   if (path.startsWith('/')) return `${base}${path}`;
   return `${base}/${path}`;
 }
@@ -31,7 +34,10 @@ export interface BackendFetchOptions {
   bearer?: string | undefined;
 }
 
-export async function backendFetch(path: string, opts: BackendFetchOptions = {}): Promise<Response> {
+export async function backendFetch(
+  path: string,
+  opts: BackendFetchOptions = {},
+): Promise<Response> {
   const headers: Record<string, string> = {
     Accept: 'application/json',
     ...(opts.body !== undefined ? { 'Content-Type': 'application/json' } : {}),

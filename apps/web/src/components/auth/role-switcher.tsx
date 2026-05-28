@@ -28,7 +28,9 @@ export function RoleSwitcher() {
     onSuccess: (next) => {
       setUser(next);
       queryClient.invalidateQueries({ queryKey: ['me'] });
-      toast.success(next.activeRoleKey ? `Acting as ${next.activeRoleKey}` : 'Reverted to all roles');
+      toast.success(
+        next.activeRoleKey ? `Acting as ${next.activeRoleKey}` : 'Reverted to all roles',
+      );
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : 'Failed to switch role'),
   });

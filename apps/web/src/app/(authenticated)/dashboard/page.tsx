@@ -17,7 +17,9 @@ function useCount(path: string): Counted {
   const q = useQuery({
     queryKey: ['count', path],
     queryFn: async () => {
-      const res = await api.get<PaginatedResponse<unknown> | unknown[]>(`/api/proxy/${path}?limit=1`);
+      const res = await api.get<PaginatedResponse<unknown> | unknown[]>(
+        `/api/proxy/${path}?limit=1`,
+      );
       if (Array.isArray(res)) return res.length;
       return res.data?.length ?? 0;
     },
@@ -52,7 +54,8 @@ export default function DashboardPage() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground">
-          Welcome back{user ? `, ${user.name}` : ''}. Phase 1 — auth, users, RBAC, warehouse hierarchy.
+          Welcome back{user ? `, ${user.name}` : ''}. Phase 1 — auth, users, RBAC, warehouse
+          hierarchy.
         </p>
       </div>
 

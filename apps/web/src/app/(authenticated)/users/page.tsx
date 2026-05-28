@@ -57,7 +57,8 @@ export default function UsersPage() {
 
   const query = useQuery({
     queryKey: ['users', debouncedSearch, sort, cursor ?? ''],
-    queryFn: () => api.get<PaginatedResponse<UserResponse>>(`/api/proxy/users?${params.toString()}`),
+    queryFn: () =>
+      api.get<PaginatedResponse<UserResponse>>(`/api/proxy/users?${params.toString()}`),
     retry: false,
   });
 
@@ -119,7 +120,11 @@ export default function UsersPage() {
       key: 'status',
       header: 'Status',
       cell: (r) =>
-        r.isActive ? <Badge variant="success">Active</Badge> : <Badge variant="destructive">Disabled</Badge>,
+        r.isActive ? (
+          <Badge variant="success">Active</Badge>
+        ) : (
+          <Badge variant="destructive">Disabled</Badge>
+        ),
     },
     { key: 'lastLogin', header: 'Last login', cell: (r) => formatDate(r.lastLoginAt) },
     {

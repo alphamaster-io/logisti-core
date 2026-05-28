@@ -27,7 +27,13 @@ export function useSidebar(): SidebarContextValue {
   return ctx;
 }
 
-export function SidebarRoot({ className, children }: { className?: string; children: React.ReactNode }) {
+export function SidebarRoot({
+  className,
+  children,
+}: {
+  className?: string;
+  children: React.ReactNode;
+}) {
   const { collapsed } = useSidebar();
   return (
     <aside

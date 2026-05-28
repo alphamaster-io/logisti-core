@@ -19,7 +19,7 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 import { IdempotencyMiddleware } from './common/middleware/idempotency.middleware';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from './modules/auth/guards/permissions.guard';
-import { MiddlewareConsumer, NestModule } from '@nestjs/common';
+import { type MiddlewareConsumer, type NestModule } from '@nestjs/common';
 
 @Module({
   imports: [
@@ -32,14 +32,18 @@ import { MiddlewareConsumer, NestModule } from '@nestjs/common';
       useFactory: () => ({
         pinoHttp: {
           level: process.env['LOG_LEVEL'] ?? 'info',
-          genReqId: (req) =>
-            (req.headers['x-request-id'] as string | undefined) ?? randomUUID(),
+          genReqId: (req) => (req.headers['x-request-id'] as string | undefined) ?? randomUUID(),
           transport:
             process.env['NODE_ENV'] === 'development'
               ? { target: 'pino-pretty', options: { singleLine: true } }
               : undefined,
           customProps: (req) => ({ requestId: req.id }),
-          redact: ['req.headers.authorization', 'req.headers.cookie', '*.password', '*.passwordHash'],
+          redact: [
+            'req.headers.authorization',
+            'req.headers.cookie',
+            '*.password',
+            '*.passwordHash',
+          ],
         },
       }),
     }),

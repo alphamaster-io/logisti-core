@@ -3,7 +3,12 @@
 import * as React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api-client';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -107,7 +112,8 @@ function BranchTree({ branchId }: { branchId: string }) {
   });
   const warehouses = unwrap(whQuery.data);
   if (whQuery.isPending) return <Skeleton className="h-6 w-32" />;
-  if (warehouses.length === 0) return <p className="text-sm text-muted-foreground">No warehouses</p>;
+  if (warehouses.length === 0)
+    return <p className="text-sm text-muted-foreground">No warehouses</p>;
   return (
     <Accordion type="multiple" className="ml-4">
       {warehouses.map((w) => (

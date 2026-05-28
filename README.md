@@ -94,21 +94,21 @@ CLAUDE.md            architecture & conventions reference
 
 ## Core Module Map
 
-| Layer | Module | Purpose |
-|---|---|---|
-| API | `auth` | Login, refresh, logout, password reset, **role-switch**, **branch-switch** |
-| API | `users` | CRUD, `/me`, role assignment |
-| API | `rbac` | Roles + permissions read |
-| API | `warehouse` | Branches, warehouses, zones, racks, bins (read) |
-| API | `audit` | Audit logs + the interceptor that records them |
-| API | `health` | DB + Redis readiness checks |
-| Web | `(auth)/login` | Login form |
-| Web | `(authenticated)/dashboard` | Placeholder KPIs |
-| Web | `(authenticated)/users` | Real data table + create/edit/disable |
-| Web | `(authenticated)/warehouses` | Hierarchical drill-down (Phase 1 placeholder) |
-| Web | `(authenticated)/audit` | Audit log viewer |
-| Web | `components/auth/role-switcher` | Master-only role impersonation |
-| Web | `components/auth/branch-switcher` | Branch context switch |
+| Layer | Module                            | Purpose                                                                    |
+| ----- | --------------------------------- | -------------------------------------------------------------------------- |
+| API   | `auth`                            | Login, refresh, logout, password reset, **role-switch**, **branch-switch** |
+| API   | `users`                           | CRUD, `/me`, role assignment                                               |
+| API   | `rbac`                            | Roles + permissions read                                                   |
+| API   | `warehouse`                       | Branches, warehouses, zones, racks, bins (read)                            |
+| API   | `audit`                           | Audit logs + the interceptor that records them                             |
+| API   | `health`                          | DB + Redis readiness checks                                                |
+| Web   | `(auth)/login`                    | Login form                                                                 |
+| Web   | `(authenticated)/dashboard`       | Placeholder KPIs                                                           |
+| Web   | `(authenticated)/users`           | Real data table + create/edit/disable                                      |
+| Web   | `(authenticated)/warehouses`      | Hierarchical drill-down (Phase 1 placeholder)                              |
+| Web   | `(authenticated)/audit`           | Audit log viewer                                                           |
+| Web   | `components/auth/role-switcher`   | Master-only role impersonation                                             |
+| Web   | `components/auth/branch-switcher` | Branch context switch                                                      |
 
 ---
 
@@ -131,16 +131,16 @@ make fresh           # Nuke and rebuild from zero
 
 ## Test User Matrix
 
-| Email | Role | What they see |
-|---|---|---|
-| `alphabyte.master@logisti-core.local` | **MASTER** | Everything + role-switcher + branch-switcher |
-| `admin@logisti-core.local` | super_admin | Everything except role impersonation |
-| `wh.admin@logisti-core.local` | warehouse_admin | Warehouse ops, inventory, shipments, reports |
-| `wh.staff@logisti-core.local` | warehouse_staff | Daily warehouse tasks |
-| `dispatcher@logisti-core.local` | dispatcher | Schedules, shipments, driver assignment |
-| `driver@logisti-core.local` | driver | Read shipments, mark delivered |
-| `inventory@logisti-core.local` | inventory_manager | Products, inventory, reports |
-| `viewer@logisti-core.local` | viewer | Read-only |
+| Email                                 | Role              | What they see                                |
+| ------------------------------------- | ----------------- | -------------------------------------------- |
+| `alphabyte.master@logisti-core.local` | **MASTER**        | Everything + role-switcher + branch-switcher |
+| `admin@logisti-core.local`            | super_admin       | Everything except role impersonation         |
+| `wh.admin@logisti-core.local`         | warehouse_admin   | Warehouse ops, inventory, shipments, reports |
+| `wh.staff@logisti-core.local`         | warehouse_staff   | Daily warehouse tasks                        |
+| `dispatcher@logisti-core.local`       | dispatcher        | Schedules, shipments, driver assignment      |
+| `driver@logisti-core.local`           | driver            | Read shipments, mark delivered               |
+| `inventory@logisti-core.local`        | inventory_manager | Products, inventory, reports                 |
+| `viewer@logisti-core.local`           | viewer            | Read-only                                    |
 
 Master password: `AlphabyteMaster!2026`. Super-admin password: `ChangeMe!Now-2026`. Demo password: `DemoUser!Pass-2026`. **Rotate before deploying anywhere.**
 
@@ -148,13 +148,13 @@ Master password: `AlphabyteMaster!2026`. Super-admin password: `ChangeMe!Now-202
 
 ## Roadmap
 
-| Phase | Scope | Status |
-|---|---|---|
-| 1. Foundation | Auth, RBAC, users, audit, warehouse-read, web shell | **this PR** |
-| 2. Inventory | Products, SKUs, batches, receiving, putaway, stock movements | next |
-| 3. Cargo & Shipments | Shipments, dispatch, tracking, delivery proof | |
-| 4. PWA & Real-time | Offline IndexedDB, Socket.IO, push, BullMQ | |
-| 5. Analytics | KPI dashboards, reports, exports | |
+| Phase                | Scope                                                        | Status      |
+| -------------------- | ------------------------------------------------------------ | ----------- |
+| 1. Foundation        | Auth, RBAC, users, audit, warehouse-read, web shell          | **this PR** |
+| 2. Inventory         | Products, SKUs, batches, receiving, putaway, stock movements | next        |
+| 3. Cargo & Shipments | Shipments, dispatch, tracking, delivery proof                |             |
+| 4. PWA & Real-time   | Offline IndexedDB, Socket.IO, push, BullMQ                   |             |
+| 5. Analytics         | KPI dashboards, reports, exports                             |             |
 
 ---
 

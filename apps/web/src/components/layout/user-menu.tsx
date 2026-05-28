@@ -45,7 +45,9 @@ export function UserMenu() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="rounded-full" aria-label="Open user menu">
           <Avatar>
-            <AvatarFallback>{initials(user.name) || <UserIcon className="h-4 w-4" />}</AvatarFallback>
+            <AvatarFallback>
+              {initials(user.name) || <UserIcon className="h-4 w-4" />}
+            </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
