@@ -8,6 +8,7 @@ import {
 } from '@logisti-core/shared';
 import { z } from 'zod';
 import { Permissions } from '../../common/decorators/permissions.decorator';
+import { RequireIdempotency } from '../../common/decorators/require-idempotency.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user';
 import { PaymentsService } from './payments.service';
@@ -37,6 +38,7 @@ export class PaymentsController {
 
   @Post('service-orders/:orderId/charges')
   @Permissions(PERMISSIONS.PAYMENTS_MANAGE)
+  @RequireIdempotency()
   charge(
     @CurrentUser() user: AuthenticatedUser,
     @Param('orderId') orderId: string,
@@ -49,6 +51,7 @@ export class PaymentsController {
 
   @Post('service-orders/:orderId/payments')
   @Permissions(PERMISSIONS.PAYMENTS_MANAGE)
+  @RequireIdempotency()
   pay(
     @CurrentUser() user: AuthenticatedUser,
     @Param('orderId') orderId: string,
@@ -61,6 +64,7 @@ export class PaymentsController {
 
   @Post('service-orders/:orderId/collect-deposit')
   @Permissions(PERMISSIONS.PAYMENTS_MANAGE)
+  @RequireIdempotency()
   collectDeposit(
     @CurrentUser() user: AuthenticatedUser,
     @Param('orderId') orderId: string,
@@ -74,6 +78,7 @@ export class PaymentsController {
   @Post('payment-lines/:lineId/correct')
   @HttpCode(200)
   @Permissions(PERMISSIONS.PAYMENTS_ADJUST)
+  @RequireIdempotency()
   correct(
     @CurrentUser() user: AuthenticatedUser,
     @Param('lineId') lineId: string,
@@ -87,6 +92,7 @@ export class PaymentsController {
   @Post('payment-lines/:lineId/bounce')
   @HttpCode(200)
   @Permissions(PERMISSIONS.PAYMENTS_ADJUST)
+  @RequireIdempotency()
   bounce(
     @CurrentUser() user: AuthenticatedUser,
     @Param('lineId') lineId: string,

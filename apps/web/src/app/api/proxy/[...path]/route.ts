@@ -23,9 +23,17 @@ async function handle(
       body = undefined;
     }
   }
+  // Forward client-supplied passthrough headers (e.g. Idempotency-Key for the
+  // payments endpoints that mandate it). Auth + content-type are set by
+  // backendFetch.
+  const forwarded: Record<string, string> = {};
+  const idemKey = req.headers.get('idempotency-key');
+  if (idemKey) forwarded['idempotency-key'] = idemKey;
+
   const res = await backendFetch(target, {
     method,
     body,
+    headers: forwarded,
     bearer: access,
   });
   const contentType = res.headers.get('content-type') ?? '';
