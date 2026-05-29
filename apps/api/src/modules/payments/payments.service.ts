@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import type { PaymentLine, PaymentLineKind, Prisma } from '@prisma/client';
+import type { PaymentLine, PaymentLineKind } from '@prisma/client';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user';
 import { PrismaService } from '../../prisma/prisma.service';
 
