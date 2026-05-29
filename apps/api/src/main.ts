@@ -1,9 +1,18 @@
 import 'reflect-metadata';
+import { Prisma } from '@prisma/client';
 
 // BigInt is JSON-serialized as a string so HTTP responses don't lose precision
 // on bigint minor-units columns. The web's Zod schemas (`minorAmountSchema`)
 // accept both string and bigint forms.
 (BigInt.prototype as unknown as { toJSON: () => string }).toJSON = function (this: bigint) {
+  return this.toString();
+};
+
+// Same for Prisma's Decimal (used for weights, volumes, etc.) — serialize as
+// the canonical string form, not the internal { s, e, d } representation.
+(Prisma.Decimal.prototype as unknown as { toJSON: () => string }).toJSON = function (
+  this: Prisma.Decimal,
+) {
   return this.toString();
 };
 
