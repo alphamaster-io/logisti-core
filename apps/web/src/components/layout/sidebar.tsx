@@ -6,6 +6,8 @@ import { usePathname } from 'next/navigation';
 import {
   Boxes,
   LayoutDashboard,
+  Package,
+  PackageCheck,
   ScrollText,
   Users,
   ChevronsLeft,
@@ -27,6 +29,18 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  {
+    href: '/orders',
+    label: 'Service Orders',
+    icon: Package,
+    permission: PERMISSIONS.SERVICE_ORDERS_READ,
+  },
+  {
+    href: '/catalog',
+    label: 'Catalog',
+    icon: PackageCheck,
+    permission: PERMISSIONS.BOX_CATALOG_READ,
+  },
   { href: '/users', label: 'Users', icon: Users, permission: PERMISSIONS.USERS_READ },
   {
     href: '/warehouses',
