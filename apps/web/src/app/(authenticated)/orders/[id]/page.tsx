@@ -57,10 +57,24 @@ function money(minor: string): string {
   return `${neg ? '-' : ''}${major}.${cents}`;
 }
 
+type ActiveBatch = {
+  id: string;
+  agentId: string;
+  agentCode: string;
+  agentName: string;
+  prefix: string;
+  nextSeq: number;
+  endSeq: number;
+  remaining: number;
+};
+
+const SYSTEM_BATCH_VALUE = '__system__';
+
 export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
   const qc = useQueryClient();
   const [boxType, setBoxType] = React.useState('KING');
+  const [batchId, setBatchId] = React.useState<string>(SYSTEM_BATCH_VALUE);
 
   const order = useQuery({
     queryKey: ['service-order', id],
@@ -78,19 +92,29 @@ export default function OrderDetailPage() {
     retry: false,
   });
 
+  const isAgentIntake = order.data?.mode === 'AGENT_INTAKE';
+  const activeBatches = useQuery({
+    queryKey: ['active-batches'],
+    queryFn: () => api.get<ActiveBatch[]>('/api/proxy/agents/batches/active'),
+    retry: false,
+    enabled: isAgentIntake,
+  });
+
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ['service-order', id] });
     qc.invalidateQueries({ queryKey: ['order-boxes', id] });
     qc.invalidateQueries({ queryKey: ['order-balance', id] });
+    if (isAgentIntake) qc.invalidateQueries({ queryKey: ['active-batches'] });
   };
 
   const addBox = useMutation({
-    mutationFn: () =>
-      api.post(
-        `/api/proxy/service-orders/${id}/boxes`,
-        { boxTypeCode: boxType },
-        { 'Idempotency-Key': newIdempotencyKey() },
-      ),
+    mutationFn: () => {
+      const body: { boxTypeCode: string; batchId?: string } = { boxTypeCode: boxType };
+      if (batchId !== SYSTEM_BATCH_VALUE) body.batchId = batchId;
+      return api.post(`/api/proxy/service-orders/${id}/boxes`, body, {
+        'Idempotency-Key': newIdempotencyKey(),
+      });
+    },
     onSuccess: () => {
       toast.success('Box added');
       invalidate();
@@ -199,10 +223,10 @@ export default function OrderDetailPage() {
       </div>
 
       <Card className="p-4">
-        <div className="mb-3 flex items-center justify-between">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h2 className="font-semibold">Boxes ({boxes.data?.length ?? 0})</h2>
           {editable && (
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Select value={boxType} onValueChange={setBoxType}>
                 <SelectTrigger className="w-40" aria-label="Box type">
                   <SelectValue />
@@ -215,6 +239,21 @@ export default function OrderDetailPage() {
                   ))}
                 </SelectContent>
               </Select>
+              {isAgentIntake && (
+                <Select value={batchId} onValueChange={setBatchId}>
+                  <SelectTrigger className="w-64" aria-label="Agent batch">
+                    <SelectValue placeholder="System number" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={SYSTEM_BATCH_VALUE}>System number (no batch)</SelectItem>
+                    {activeBatches.data?.map((b) => (
+                      <SelectItem key={b.id} value={b.id}>
+                        {b.agentCode} — {b.prefix} (next #{b.nextSeq}, {b.remaining} left)
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
               <Button size="sm" onClick={() => addBox.mutate()} disabled={addBox.isPending}>
                 Add box
               </Button>
