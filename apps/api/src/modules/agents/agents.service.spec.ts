@@ -128,6 +128,42 @@ describe('AgentsService', () => {
     expect(out.number).toBe('Y-000004');
   });
 
+  it('lists ACTIVE batches with agent + remaining for the picker', async () => {
+    (prisma.boxNumberBatch.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: 'b1',
+        tenantId: 't1',
+        agentId: 'a1',
+        prefix: 'EX-AG-001-',
+        startSeq: 1,
+        endSeq: 100,
+        nextSeq: 42,
+        status: 'ACTIVE',
+        agent: { code: 'AG-001', name: 'Agent 1', isActive: true },
+      },
+      {
+        id: 'b2',
+        tenantId: 't1',
+        agentId: 'a2',
+        prefix: 'EX-AG-002-',
+        startSeq: 1,
+        endSeq: 50,
+        nextSeq: 1,
+        status: 'ACTIVE',
+        agent: { code: 'AG-002', name: 'Agent 2', isActive: false },
+      },
+    ]);
+    const out = await svc.listActiveBatchesForPicker(user);
+    expect(out).toHaveLength(1);
+    expect(out[0]).toMatchObject({
+      id: 'b1',
+      agentCode: 'AG-001',
+      agentName: 'Agent 1',
+      remaining: 59,
+    });
+    expect(out[0]).not.toHaveProperty('agent');
+  });
+
   it('refuses allocation on a VOIDED batch', async () => {
     (prisma.boxNumberBatch.findFirst as jest.Mock).mockResolvedValue({
       id: 'b1',

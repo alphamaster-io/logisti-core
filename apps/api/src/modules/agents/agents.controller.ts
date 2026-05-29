@@ -39,6 +39,14 @@ export class AgentsController {
     return this.svc.list(user, { branchId, active: parsedActive });
   }
 
+  // Active batches across the tenant for the order-detail batch picker.
+  // Declared before the `:id` routes below so the literal segment wins.
+  @Get('batches/active')
+  @Permissions(PERMISSIONS.AGENTS_READ)
+  listActiveBatches(@CurrentUser() user: AuthenticatedUser) {
+    return this.svc.listActiveBatchesForPicker(user);
+  }
+
   @Post()
   @Permissions(PERMISSIONS.AGENTS_MANAGE)
   create(@CurrentUser() user: AuthenticatedUser, @Body() body: unknown) {

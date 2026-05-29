@@ -156,6 +156,28 @@ export class AgentsService {
     });
   }
 
+  // Returns ACTIVE batches in the tenant with their agent's code + name
+  // attached. Powers the batch picker on AGENT_INTAKE order detail pages so
+  // staff can pick which agent's number a box should be allocated under
+  // without first navigating to that agent's batches list.
+  async listActiveBatchesForPicker(
+    user: AuthenticatedUser,
+  ): Promise<Array<BoxNumberBatch & { agentCode: string; agentName: string; remaining: number }>> {
+    const batches = await this.prisma.boxNumberBatch.findMany({
+      where: { tenantId: user.tenantId, status: 'ACTIVE' },
+      orderBy: [{ agent: { code: 'asc' } }, { prefix: 'asc' }, { startSeq: 'asc' }],
+      include: { agent: { select: { code: true, name: true, isActive: true } } },
+    });
+    return batches
+      .filter((b) => b.agent.isActive)
+      .map(({ agent, ...b }) => ({
+        ...b,
+        agentCode: agent.code,
+        agentName: agent.name,
+        remaining: b.endSeq - b.nextSeq + 1,
+      }));
+  }
+
   async voidBatch(user: AuthenticatedUser, batchId: string): Promise<BoxNumberBatch> {
     const b = await this.prisma.boxNumberBatch.findFirst({
       where: { id: batchId, tenantId: user.tenantId },
