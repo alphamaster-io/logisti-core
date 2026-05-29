@@ -26,6 +26,8 @@ export const paymentLineSchema = z.object({
   tenantId: z.string(),
   serviceOrderId: z.string(),
   boxId: z.string().nullable(),
+  // Set on AGENT_COMMISSION lines so payouts are queryable per agent.
+  agentId: z.string().nullable(),
   kind: paymentLineKindSchema,
   amount: minorAmountSchema,
   currencyCode: z.string(),
