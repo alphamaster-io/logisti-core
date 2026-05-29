@@ -56,6 +56,11 @@ export const PERMISSIONS = {
   BOXES_READ: 'boxes.read',
   BOXES_CREATE: 'boxes.create',
   BOXES_MANAGE: 'boxes.manage',
+
+  // Payments & deposits (Phase 2 — fourth slice).
+  PAYMENTS_READ: 'payments.read',
+  PAYMENTS_MANAGE: 'payments.manage',
+  PAYMENTS_ADJUST: 'payments.adjust',
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
@@ -92,6 +97,9 @@ export const ROLE_PERMISSIONS: Record<RoleKey, PermissionKey[]> = {
     PERMISSIONS.BOXES_READ,
     PERMISSIONS.BOXES_CREATE,
     PERMISSIONS.BOXES_MANAGE,
+    PERMISSIONS.PAYMENTS_READ,
+    PERMISSIONS.PAYMENTS_MANAGE,
+    PERMISSIONS.PAYMENTS_ADJUST,
   ],
   [ROLES.WAREHOUSE_STAFF]: [
     PERMISSIONS.WAREHOUSES_READ,
@@ -111,6 +119,8 @@ export const ROLE_PERMISSIONS: Record<RoleKey, PermissionKey[]> = {
     PERMISSIONS.BOXES_READ,
     PERMISSIONS.BOXES_CREATE,
     PERMISSIONS.BOXES_MANAGE,
+    PERMISSIONS.PAYMENTS_READ,
+    PERMISSIONS.PAYMENTS_MANAGE,
   ],
   [ROLES.DISPATCHER]: [
     PERMISSIONS.BRANCHES_READ,
@@ -148,5 +158,6 @@ export const ROLE_PERMISSIONS: Record<RoleKey, PermissionKey[]> = {
     PERMISSIONS.BOX_CATALOG_READ,
     PERMISSIONS.SERVICE_ORDERS_READ,
     PERMISSIONS.BOXES_READ,
+    PERMISSIONS.PAYMENTS_READ,
   ],
 };
