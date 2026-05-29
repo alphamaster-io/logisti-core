@@ -31,14 +31,15 @@ model Tenant {
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
 
-  users        User[]
-  branches     Branch[]
-  warehouses   Warehouse[]
-  zones        WarehouseZone[]
-  racks        Rack[]
-  bins         Bin[]
-  auditLogs    AuditLog[]
-  activityLogs ActivityLog[]
+  users         User[]
+  branches      Branch[]
+  warehouses    Warehouse[]
+  zones         WarehouseZone[]
+  racks         Rack[]
+  bins          Bin[]
+  auditLogs     AuditLog[]
+  activityLogs  ActivityLog[]
+  serviceOrders ServiceOrder[]
 
   @@map("tenants")
 }
@@ -177,9 +178,10 @@ model Branch {
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
 
-  tenant     Tenant      @relation(fields: [tenantId], references: [id])
-  users      User[]
-  warehouses Warehouse[]
+  tenant        Tenant         @relation(fields: [tenantId], references: [id])
+  users         User[]
+  warehouses    Warehouse[]
+  serviceOrders ServiceOrder[]
 
   @@unique([tenantId, code])
   @@index([tenantId])
@@ -433,4 +435,102 @@ model RegionZoneMap {
 
   @@index([zone])
   @@map("region_zone_map")
+}
+
+// ─── Service Orders ────────────────────────────────────────────
+// The customer-facing engagement. Per
+// openspec/changes/align-with-exspeed-workflows/specs/service-orders/spec.md.
+// This slice models the entity + draft lifecycle + cancel. Boxes,
+// PaymentLines, Declarations are wired in follow-up slices.
+
+enum ServiceOrderStatus {
+  DRAFT
+  DEPOSIT_COLLECTED
+  STORED
+  PACKING_SCHEDULED
+  PACKED
+  AWAITING_FULL_PAYMENT
+  PAID_IN_FULL
+  OVERDUE
+  IN_WAREHOUSE
+  PALLETIZED
+  SHIPPED
+  DELIVERED
+  FAILED_DELIVERY
+  PENDING_ABANDONMENT
+  ABANDONED
+  CANCELLED
+}
+
+enum ServiceOrderPaymentStatus {
+  PENDING_DEPOSIT
+  DEPOSIT_COLLECTED
+  PARTIAL
+  PAID_IN_FULL
+  OVERDUE
+  WRITTEN_OFF
+}
+
+model ServiceOrder {
+  id            String                    @id @default(cuid())
+  tenantId      String
+  number        String                    @unique // URL-safe opaque, ≥80 bits
+  mode          ServiceMode
+  status        ServiceOrderStatus        @default(DRAFT)
+  paymentStatus ServiceOrderPaymentStatus @default(PENDING_DEPOSIT)
+  branchId      String
+
+  // Customer is captured as a snapshot until the CRM lands in Phase 4.
+  // Fields are denormalised JSON; we'll migrate to a Customer relation later.
+  customerSnapshot  Json // { name, contactNumbers, idNumber?, address? }
+  consigneeSnapshot Json // { name, contactNumbers, address: {...PH address fields} }
+
+  pickupAddress    Json? // for deliver_box; structured HK address
+  scheduledPickupAt DateTime?
+  packedAt         DateTime?
+  storedAt         DateTime?
+  paidInFullAt     DateTime?
+  cancelledAt      DateTime?
+  abandonmentDueAt DateTime? // computed when status moves to relevant states
+
+  // FK placeholders — populated when those capabilities land.
+  agentId       String? // for agent_intake (agents capability — later)
+  manifestId    String? // for macau_intake (manifests capability — later)
+  declarationId String? // declarations capability — later
+
+  notes      String?
+  createdBy  String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  branch Branch @relation(fields: [branchId], references: [id])
+  events ServiceOrderEvent[]
+
+  @@index([tenantId, status])
+  @@index([tenantId, branchId, status])
+  @@index([tenantId, mode])
+  @@index([tenantId, createdAt])
+  @@index([status, abandonmentDueAt])
+  @@map("service_orders")
+}
+
+// Status-transition history. Internal-only; the public tracking timeline
+// is the separate (later) capability.
+model ServiceOrderEvent {
+  id             String             @id @default(cuid())
+  tenantId       String
+  serviceOrderId String
+  fromStatus     ServiceOrderStatus?
+  toStatus       ServiceOrderStatus
+  reason         String?
+  recordedBy     String
+  requestId      String?
+  createdAt      DateTime           @default(now())
+
+  serviceOrder ServiceOrder @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, serviceOrderId, createdAt])
+  @@map("service_order_events")
 }
