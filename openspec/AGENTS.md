@@ -30,14 +30,14 @@ openspec/
 
 ## When to write a proposal
 
-| Change type | Proposal required? |
-|---|---|
-| New capability (anything not already in `specs/`) | **Yes** |
-| Breaking change to an existing spec | **Yes** |
-| Adding a behavior to an existing capability | **Yes** |
-| Bug fix that doesn't change documented behavior | No |
-| Refactor with no observable change | No |
-| Docs / typos / tooling | No |
+| Change type                                       | Proposal required? |
+| ------------------------------------------------- | ------------------ |
+| New capability (anything not already in `specs/`) | **Yes**            |
+| Breaking change to an existing spec               | **Yes**            |
+| Adding a behavior to an existing capability       | **Yes**            |
+| Bug fix that doesn't change documented behavior   | No                 |
+| Refactor with no observable change                | No                 |
+| Docs / typos / tooling                            | No                 |
 
 When in doubt: write a small proposal. The thirty minutes you spend writing it pays back in arguing-after-the-fact you avoided.
 
@@ -62,14 +62,17 @@ Each capability spec is a single `spec.md` with this skeleton:
 # <capability> capability
 
 ## Purpose
+
 One paragraph: what does this capability do, and who benefits.
 
 ## Requirements
 
 ### Requirement: <short imperative name>
+
 The system SHALL <observable behavior>.
 
 #### Scenario: <descriptive name>
+
 - GIVEN <preconditions>
 - WHEN <trigger>
 - THEN <expected outcome>
@@ -78,6 +81,7 @@ The system SHALL <observable behavior>.
 ```
 
 Rules:
+
 - **SHALL** = must, **SHOULD** = strongly recommended, **MAY** = optional
 - Every Requirement has at least one Scenario (otherwise it can't be tested)
 - Scenarios use Given/When/Then; keep them concrete enough to write a test from
@@ -87,38 +91,46 @@ Rules:
 ## Change proposal format
 
 `proposal.md`:
+
 ```markdown
 # <Title>
 
 ## Why
+
 The business / engineering driver. Link to the project.md roadmap row.
 
 ## What changes
+
 Bullet list of new behaviors, with `[+] Added`, `[~] Modified`, or `[-] Removed` markers.
 
 ## Impact
+
 - Capabilities affected: ...
 - Migration concerns: ...
 - Backwards compatibility: ...
 
 ## Out of scope
+
 Bullet list of things people might assume but aren't included.
 ```
 
 `tasks.md`:
+
 ```markdown
 # Implementation tasks
 
 ## 1. Database
+
 - [ ] Add Product, SKU tables to schema.prisma
 - [ ] Migration: 20260601000000_inventory
 
 ## 2. API
+
 - [ ] Module: ProductsModule
-...
+      ...
 ```
 
-`specs/<capability>/spec.md`:  The proposed spec for the capability AFTER this change lands. Will be moved into `openspec/specs/` on archive.
+`specs/<capability>/spec.md`: The proposed spec for the capability AFTER this change lands. Will be moved into `openspec/specs/` on archive.
 
 ## Naming
 

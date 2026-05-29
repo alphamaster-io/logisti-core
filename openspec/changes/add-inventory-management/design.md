@@ -40,11 +40,11 @@ Two operators putaway-ing the same SKU into different bins is fine — Postgres 
 
 ## What we explicitly defer to a later change
 
-| Topic | Why deferred |
-|---|---|
-| Lot / serial tracking beyond expiry batches | Phase 4 — needed for high-value cargo; current customers don't ask |
-| Cycle count workflows | Captured as `inventory.adjust` for now; structured cycle count is a separate UX |
-| Valuation (FIFO/LIFO/weighted) | Phase 5 — only matters once we report cost-of-goods |
-| Damage / write-off | Use `adjust` with reason `damage` initially; structured workflow later |
-| Multi-currency price conversion | Price stored in tenant base currency; FX is Phase 5 |
-| Customer self-service receiving | Phase 4 — counter staff drives receiving in Phase 2 |
+| Topic                                       | Why deferred                                                                    |
+| ------------------------------------------- | ------------------------------------------------------------------------------- |
+| Lot / serial tracking beyond expiry batches | Phase 4 — needed for high-value cargo; current customers don't ask              |
+| Cycle count workflows                       | Captured as `inventory.adjust` for now; structured cycle count is a separate UX |
+| Valuation (FIFO/LIFO/weighted)              | Phase 5 — only matters once we report cost-of-goods                             |
+| Damage / write-off                          | Use `adjust` with reason `damage` initially; structured workflow later          |
+| Multi-currency price conversion             | Price stored in tenant base currency; FX is Phase 5                             |
+| Customer self-service receiving             | Phase 4 — counter staff drives receiving in Phase 2                             |

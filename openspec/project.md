@@ -6,17 +6,17 @@
 
 ## Audience
 
-| Persona | What they do in the system |
-|---|---|
-| Branch counter staff | Receive customer drop-offs, weigh/measure, issue receipts |
-| Warehouse operators | Putaway, picking, packing, cycle counts |
-| Dispatchers | Build shipments, assign drivers, schedule routes |
-| Drivers | View assignments on mobile (PWA), capture proof of delivery |
-| Inventory managers | Own the product catalog, approve adjustments |
-| Auditors | Read-only view of every state change in the system |
-| Super admins | Tenant-wide configuration, user management |
-| Master users | Cross-cutting impersonation + branch switching (training, support) |
-| Future: shipping customers | Self-service intake + tracking portal (Phase 4) |
+| Persona                    | What they do in the system                                         |
+| -------------------------- | ------------------------------------------------------------------ |
+| Branch counter staff       | Receive customer drop-offs, weigh/measure, issue receipts          |
+| Warehouse operators        | Putaway, picking, packing, cycle counts                            |
+| Dispatchers                | Build shipments, assign drivers, schedule routes                   |
+| Drivers                    | View assignments on mobile (PWA), capture proof of delivery        |
+| Inventory managers         | Own the product catalog, approve adjustments                       |
+| Auditors                   | Read-only view of every state change in the system                 |
+| Super admins               | Tenant-wide configuration, user management                         |
+| Master users               | Cross-cutting impersonation + branch switching (training, support) |
+| Future: shipping customers | Self-service intake + tracking portal (Phase 4)                    |
 
 ## What the platform must guarantee
 
@@ -44,12 +44,12 @@ Carried over from the legacy audit; non-negotiable:
 
 ## Roadmap by phase
 
-| Phase | Scope | Status |
-|---|---|---|
-| 1 — Foundation | Monorepo, auth, RBAC, users, audit, warehouse-read API, web shell | **shipped (live on Cloud Run)** |
-| 2 — Inventory | Products, SKUs, batches, receiving, putaway, stock movements | proposed (see `changes/add-inventory-management`) |
-| 3 — Cargo & Shipments | Shipments, dispatch, tracking, delivery proof | not started |
-| 4 — PWA & Real-time | Offline-first IndexedDB, Socket.IO, BullMQ, push, customer portal | not started |
-| 5 — Analytics & Billing | KPI dashboards, reports, multi-currency invoicing, surcharges | not started |
+| Phase                   | Scope                                                             | Status                                            |
+| ----------------------- | ----------------------------------------------------------------- | ------------------------------------------------- |
+| 1 — Foundation          | Monorepo, auth, RBAC, users, audit, warehouse-read API, web shell | **shipped (live on Cloud Run)**                   |
+| 2 — Inventory           | Products, SKUs, batches, receiving, putaway, stock movements      | proposed (see `changes/add-inventory-management`) |
+| 3 — Cargo & Shipments   | Shipments, dispatch, tracking, delivery proof                     | not started                                       |
+| 4 — PWA & Real-time     | Offline-first IndexedDB, Socket.IO, BullMQ, push, customer portal | not started                                       |
+| 5 — Analytics & Billing | KPI dashboards, reports, multi-currency invoicing, surcharges     | not started                                       |
 
 See [`README.md`](../README.md) and [`CLAUDE.md`](../CLAUDE.md) for the technical reference. See `openspec/AGENTS.md` for how to propose and land new capabilities.

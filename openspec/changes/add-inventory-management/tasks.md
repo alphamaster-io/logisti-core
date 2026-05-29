@@ -22,12 +22,14 @@ Ordered for incremental landing. Each section should be its own PR if it keeps t
 ## 3. API modules
 
 ### 3a. Products
+
 - [ ] `ProductsModule` with CRUD endpoints
 - [ ] DTOs use class-validator; controller uses `@Permissions(PERMISSIONS.PRODUCTS_*)`
 - [ ] Cursor pagination + `?q=` search
 - [ ] Unit tests: validation, permission, soft-delete
 
 ### 3b. Receiving
+
 - [ ] `ReceivingModule`
 - [ ] `POST /api/v1/receiving/sessions` — start a session (warehouse_staff)
 - [ ] `POST /api/v1/receiving/sessions/:id/lines` — add a line (requires `Idempotency-Key`)
@@ -36,12 +38,14 @@ Ordered for incremental landing. Each section should be its own PR if it keeps t
 - [ ] Idempotency middleware tested: replay returns cached response, no double movement
 
 ### 3c. Stock movements
+
 - [ ] `StockMovementsModule` — read-only API
 - [ ] `GET /api/v1/stock-movements` — cursor pagination, filter by product/branch/time
 - [ ] All writes go through internal `StockMovementService.record()` — no direct controller writes
 - [ ] Transactional: bin_quantities update + stock_movement insert in one Prisma transaction
 
 ### 3d. Inventory (view layer)
+
 - [ ] `InventoryModule` — read-only
 - [ ] `GET /api/v1/inventory?productId=&branchId=&warehouseId=` — bin-level breakdown
 - [ ] `GET /api/v1/inventory/summary?productId=` — total per branch

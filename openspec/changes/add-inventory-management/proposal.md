@@ -33,15 +33,18 @@ The legacy ExSpeed audit identified manual stock counts and untraced movements a
 ## Impact
 
 **Capabilities affected**
+
 - New: `products`, `inventory`, `receiving`, `stock-movements`
 - Modified: `warehouse-structure`, `rbac`, `audit` (new entity types appear in the log)
 
 **Migration concerns**
+
 - Single migration adds 7 tables: `products`, `skus`, `batches`, `bin_quantities`, `stock_movements`, `receiving_sessions`, `receiving_lines`
 - No data backfill needed — clean Phase 2 start; existing tenants begin with zero stock
 - Indexes on `(tenantId, branchId, productId)` for stock queries and `(tenantId, createdAt)` for movement reports
 
 **Backwards compatibility**
+
 - No existing endpoint changes shape
 - New permission keys are already in `packages/shared/src/rbac/permissions.ts` — no shared package version bump required
 - Idempotency-Key middleware is already wired (Phase 1); receiving endpoints opt in
