@@ -17,6 +17,7 @@ import { BoxCatalogModule } from './modules/box-catalog/box-catalog.module';
 import { ServiceOrdersModule } from './modules/service-orders/service-orders.module';
 import { BoxesModule } from './modules/boxes/boxes.module';
 import { PaymentsModule } from './modules/payments/payments.module';
+import { AgentsModule } from './modules/agents/agents.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { AuditInterceptor } from './modules/audit/audit.interceptor';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
@@ -70,6 +71,7 @@ import { MiddlewareConsumer, NestModule } from '@nestjs/common';
     ServiceOrdersModule,
     BoxesModule,
     PaymentsModule,
+    AgentsModule,
     AuditModule,
   ],
   providers: [

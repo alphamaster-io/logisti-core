@@ -39,9 +39,11 @@ model Tenant {
   bins          Bin[]
   auditLogs     AuditLog[]
   activityLogs  ActivityLog[]
-  serviceOrders ServiceOrder[]
-  boxes         Box[]
-  paymentLines  PaymentLine[]
+  serviceOrders     ServiceOrder[]
+  boxes             Box[]
+  paymentLines      PaymentLine[]
+  agents            Agent[]
+  boxNumberBatches  BoxNumberBatch[]
 
   @@map("tenants")
 }
@@ -184,6 +186,7 @@ model Branch {
   users         User[]
   warehouses    Warehouse[]
   serviceOrders ServiceOrder[]
+  agents        Agent[]
 
   @@unique([tenantId, code])
   @@index([tenantId])
@@ -639,4 +642,70 @@ model PaymentLine {
   @@index([tenantId, kind])
   @@index([tenantId, createdAt])
   @@map("payment_lines")
+}
+
+// ─── Agents & box-number batches ───────────────────────────────
+// Partner intake. Per
+// openspec/changes/align-with-exspeed-workflows/specs/agents/spec.md.
+// This slice covers Agent CRUD + batch issuance + atomic next-number
+// allocation. Agent-intake wiring on the box endpoints and remittance
+// accounting (commission ledger) land in follow-up slices.
+
+enum BoxNumberBatchStatus {
+  ACTIVE
+  EXHAUSTED
+  VOIDED
+}
+
+model Agent {
+  id                    String   @id @default(cuid())
+  tenantId              String
+  code                  String // tenant-unique short identifier (e.g. "AG-CW-001")
+  name                  String
+  branchId              String? // optional anchor branch for reconciliation
+  // Commission policy: either a percentage of received amount OR a flat per-box rate.
+  // Both null means commission is settled out-of-band.
+  commissionPercent     Decimal? @db.Decimal(5, 2) // 0.00 - 100.00
+  commissionPerBoxMinor BigInt?
+  commissionCurrency    String? // 3-letter ISO
+  contactInfo           Json? // { email, phone[], whatsapp?, address? }
+  isActive              Boolean  @default(true)
+  createdBy             String
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  deletedAt             DateTime?
+
+  tenant           Tenant           @relation(fields: [tenantId], references: [id])
+  branch           Branch?          @relation(fields: [branchId], references: [id])
+  boxNumberBatches BoxNumberBatch[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@index([tenantId, branchId])
+  @@map("agents")
+}
+
+model BoxNumberBatch {
+  id          String               @id @default(cuid())
+  tenantId    String
+  agentId     String
+  // The number is composed: `prefix` + zero-padded sequence (6 digits).
+  // E.g. prefix "EX-AG-001-" + seq 42 → "EX-AG-001-000042".
+  prefix      String
+  startSeq    Int
+  endSeq      Int
+  nextSeq     Int // bumped atomically on each allocation
+  status      BoxNumberBatchStatus @default(ACTIVE)
+  notes       String?
+  issuedBy    String
+  issuedAt    DateTime             @default(now())
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  agent  Agent  @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, agentId])
+  @@index([tenantId, status])
+  @@map("box_number_batches")
 }
