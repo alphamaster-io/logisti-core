@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Boxes,
+  Handshake,
   LayoutDashboard,
   Package,
   PackageCheck,
@@ -40,6 +41,12 @@ const NAV_ITEMS: NavItem[] = [
     label: 'Catalog',
     icon: PackageCheck,
     permission: PERMISSIONS.BOX_CATALOG_READ,
+  },
+  {
+    href: '/agents',
+    label: 'Agents',
+    icon: Handshake,
+    permission: PERMISSIONS.AGENTS_READ,
   },
   { href: '/users', label: 'Users', icon: Users, permission: PERMISSIONS.USERS_READ },
   {
