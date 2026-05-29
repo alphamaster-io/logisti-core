@@ -2,7 +2,7 @@
 
 End-to-end **Warehouse & Cargo Management Platform** — built as a multi-tenant, offline-capable PWA.
 
-> **Status:** Phase 1 — Foundation. See [`CLAUDE.md`](./CLAUDE.md) for architecture and conventions, and [`docs/decisions/`](./docs/decisions/) for the ADR trail.
+> **Status:** Phase 1 — Foundation. See [`CLAUDE.md`](./CLAUDE.md) for architecture and conventions, [`openspec/`](./openspec/) for the spec-driven workflow, and [`docs/decisions/`](./docs/decisions/) for the ADR trail.
 
 ---
 
