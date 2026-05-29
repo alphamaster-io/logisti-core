@@ -42,6 +42,10 @@ export const PERMISSIONS = {
   REPORTS_EXPORT: 'reports.export',
 
   AUDIT_READ: 'audit.read',
+
+  // Box catalog (Phase 2 — first slice). See openspec/changes/align-with-exspeed-workflows.
+  BOX_CATALOG_READ: 'box-catalog.read',
+  BOX_CATALOG_MANAGE: 'box-catalog.manage',
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
@@ -70,6 +74,8 @@ export const ROLE_PERMISSIONS: Record<RoleKey, PermissionKey[]> = {
     PERMISSIONS.REPORTS_READ,
     PERMISSIONS.REPORTS_EXPORT,
     PERMISSIONS.AUDIT_READ,
+    PERMISSIONS.BOX_CATALOG_READ,
+    PERMISSIONS.BOX_CATALOG_MANAGE,
   ],
   [ROLES.WAREHOUSE_STAFF]: [
     PERMISSIONS.WAREHOUSES_READ,
@@ -82,6 +88,7 @@ export const ROLE_PERMISSIONS: Record<RoleKey, PermissionKey[]> = {
     PERMISSIONS.PICKING_READ,
     PERMISSIONS.PICKING_MANAGE,
     PERMISSIONS.SHIPMENTS_READ,
+    PERMISSIONS.BOX_CATALOG_READ,
   ],
   [ROLES.DISPATCHER]: [
     PERMISSIONS.BRANCHES_READ,
@@ -102,6 +109,8 @@ export const ROLE_PERMISSIONS: Record<RoleKey, PermissionKey[]> = {
     PERMISSIONS.PRODUCTS_MANAGE,
     PERMISSIONS.REPORTS_READ,
     PERMISSIONS.REPORTS_EXPORT,
+    PERMISSIONS.BOX_CATALOG_READ,
+    PERMISSIONS.BOX_CATALOG_MANAGE,
   ],
   [ROLES.VIEWER]: [
     PERMISSIONS.USERS_READ,
@@ -114,5 +123,6 @@ export const ROLE_PERMISSIONS: Record<RoleKey, PermissionKey[]> = {
     PERMISSIONS.SHIPMENTS_READ,
     PERMISSIONS.REPORTS_READ,
     PERMISSIONS.AUDIT_READ,
+    PERMISSIONS.BOX_CATALOG_READ,
   ],
 };

@@ -8,6 +8,7 @@ import {
   ROLE_PERMISSIONS,
   ROLES,
 } from '@logisti-core/shared';
+import { seedBoxCatalog } from './seed-box-catalog';
 
 const prisma = new PrismaClient();
 
@@ -295,6 +296,9 @@ async function main() {
     });
   }
   console.log(`  ✓ ${demoUsers.length} demo users (password: ${demoPassword})`);
+
+  // ── Box catalog (Phase 2 — first slice) ──────────────────────
+  await seedBoxCatalog(prisma);
 
   console.log('\n✅ Seed complete.\n');
   console.log(`   Master:      ${masterEmail} / ${masterPassword}`);

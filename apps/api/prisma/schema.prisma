@@ -301,3 +301,136 @@ model ActivityLog {
   @@index([userId])
   @@map("activity_logs")
 }
+
+// ─── Box catalog ──────────────────────────────────────────────
+// First slice of Phase 2 per openspec/changes/align-with-exspeed-workflows.
+// Box Types are the platform's primary SKU. Dimensions, loyalty point value,
+// liability cap, and per-region prices are pinned per the HK price list.
+
+enum BoxTypeCode {
+  KING
+  SUPER
+  JUMBO
+  REGULAR
+  MEDIUM
+  SMALL
+  EX_BUDGET
+  OVERSIZE
+  ODD_SIZE
+}
+
+enum RegionZone {
+  MNL_RIZAL
+  LUZON_A
+  LUZON_B
+  BICOL_VISAYAS
+  MINDANAO_ISLANDS
+}
+
+enum ServiceMode {
+  DELIVER_BOX
+  PICK_UP_BOX
+  INSTANT_PACK
+  STORAGE
+  AGENT_INTAKE
+  MACAU_INTAKE
+}
+
+model BoxType {
+  id                  String      @id @default(cuid())
+  code                BoxTypeCode @unique
+  displayName         String
+  lengthIn            Int? // null for OVERSIZE / ODD_SIZE
+  widthIn             Int?
+  heightIn            Int?
+  loyaltyPointsPerBox Int         @default(0)
+  liabilityCapAmount  BigInt? // minor units; null for OVERSIZE / ODD_SIZE
+  liabilityCapCurrency String?
+  isActive            Boolean     @default(true)
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  deletedAt           DateTime?
+
+  prices BoxPrice[]
+
+  @@map("box_types")
+}
+
+model BoxPrice {
+  id            String       @id @default(cuid())
+  boxTypeId     String
+  regionZone    RegionZone
+  currencyCode  String // "PHP", "HKD"
+  amountMinor   BigInt
+  serviceMode   ServiceMode? // null = regular; or INSTANT_PACK / TAKE_OUT discount variant
+  isDiscount    Boolean      @default(false) // true when this is an instant-pack or take-out discount line
+  effectiveFrom DateTime     @default(now())
+  effectiveTo   DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  boxType BoxType @relation(fields: [boxTypeId], references: [id], onDelete: Cascade)
+
+  @@unique([boxTypeId, regionZone, currencyCode, serviceMode, effectiveFrom])
+  @@index([boxTypeId, regionZone])
+  @@map("box_prices")
+}
+
+enum AccessoryCode {
+  PADLOCK
+  TAPE_CLEAR
+  STORAGE_BAG_S
+  STORAGE_BAG_M
+  STORAGE_BAG_L
+  STORAGE_BAG_LOGO
+}
+
+model Accessory {
+  id           String        @id @default(cuid())
+  code         AccessoryCode @unique
+  displayName  String
+  amountMinor  BigInt
+  currencyCode String // HKD per the HK pricelist
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  deletedAt    DateTime?
+
+  @@map("accessories")
+}
+
+enum TvSizeBracket {
+  IN_25_29
+  IN_30_34
+  IN_35_42
+  IN_43_50
+  IN_51_64
+}
+
+model TvPrice {
+  id            String        @id @default(cuid())
+  sizeBracket   TvSizeBracket
+  regionZone    RegionZone
+  currencyCode  String // PHP per the price list
+  amountMinor   BigInt
+  effectiveFrom DateTime      @default(now())
+  effectiveTo   DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@unique([sizeBracket, regionZone, currencyCode, effectiveFrom])
+  @@index([sizeBracket, regionZone])
+  @@map("tv_prices")
+}
+
+// Province → RegionZone lookup, seeded from HKG_PRICE_LIST_20012024 footnotes.
+model RegionZoneMap {
+  id        String     @id @default(cuid())
+  province  String     @unique
+  zone      RegionZone
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([zone])
+  @@map("region_zone_map")
+}
