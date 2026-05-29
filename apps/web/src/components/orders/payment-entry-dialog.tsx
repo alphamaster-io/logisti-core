@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { api, ApiError } from '@/lib/api-client';
+import { api, ApiError, newIdempotencyKey } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -81,7 +81,7 @@ export function PaymentEntryDialog({
         reason: reason.trim() || (mode === 'charge' ? kind.toLowerCase() : 'payment received'),
       };
       if (mode === 'charge') body.kind = kind;
-      return api.post(path, body);
+      return api.post(path, body, { 'Idempotency-Key': newIdempotencyKey() });
     },
     onSuccess: () => {
       toast.success(mode === 'charge' ? 'Charge recorded' : 'Payment recorded');

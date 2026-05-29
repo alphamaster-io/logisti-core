@@ -23,6 +23,7 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 import { IdempotencyMiddleware } from './common/middleware/idempotency.middleware';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from './modules/auth/guards/permissions.guard';
+import { IdempotencyGuard } from './common/guards/idempotency.guard';
 import { MiddlewareConsumer, NestModule } from '@nestjs/common';
 
 @Module({
@@ -75,6 +76,7 @@ import { MiddlewareConsumer, NestModule } from '@nestjs/common';
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: PermissionsGuard },
+    { provide: APP_GUARD, useClass: IdempotencyGuard },
     { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
   ],
 })

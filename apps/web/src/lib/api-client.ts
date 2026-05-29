@@ -76,8 +76,29 @@ export async function apiFetch<T>(path: string, init: FetchInit = {}): Promise<T
 
 export const api = {
   get: <T>(path: string) => apiFetch<T>(path, { method: 'GET' }),
-  post: <T>(path: string, body?: unknown) => apiFetch<T>(path, { method: 'POST', json: body }),
-  patch: <T>(path: string, body?: unknown) => apiFetch<T>(path, { method: 'PATCH', json: body }),
-  put: <T>(path: string, body?: unknown) => apiFetch<T>(path, { method: 'PUT', json: body }),
+  post: <T>(path: string, body?: unknown, headers?: Record<string, string>) =>
+    apiFetch<T>(path, { method: 'POST', json: body, headers }),
+  patch: <T>(path: string, body?: unknown, headers?: Record<string, string>) =>
+    apiFetch<T>(path, { method: 'PATCH', json: body, headers }),
+  put: <T>(path: string, body?: unknown, headers?: Record<string, string>) =>
+    apiFetch<T>(path, { method: 'PUT', json: body, headers }),
   delete: <T>(path: string) => apiFetch<T>(path, { method: 'DELETE' }),
 };
+
+/**
+ * Generate a fresh Idempotency-Key value (RFC 4122 v4) for endpoints that
+ * require one. Use a stable key when retrying the *same* logical request;
+ * use a fresh key for each independent action.
+ */
+export function newIdempotencyKey(): string {
+  // crypto.randomUUID is available in evergreen browsers + Node 14.17+.
+  const g = globalThis as { crypto?: Crypto };
+  const c = g.crypto;
+  if (c && typeof c.randomUUID === 'function') {
+    return c.randomUUID();
+  }
+  // Fallback: 24 random bytes (~192 bits) hex-encoded.
+  const arr = new Uint8Array(24);
+  c?.getRandomValues(arr);
+  return Array.from(arr, (b) => b.toString(16).padStart(2, '0')).join('');
+}

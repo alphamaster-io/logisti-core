@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useParams } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { api, ApiError } from '@/lib/api-client';
+import { api, ApiError, newIdempotencyKey } from '@/lib/api-client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -104,10 +104,11 @@ export default function OrderDetailPage() {
 
   const collectDeposit = useMutation({
     mutationFn: () =>
-      api.post(`/api/proxy/service-orders/${id}/collect-deposit`, {
-        perBoxMinor: 5000,
-        currencyCode: 'HKD',
-      }),
+      api.post(
+        `/api/proxy/service-orders/${id}/collect-deposit`,
+        { perBoxMinor: 5000, currencyCode: 'HKD' },
+        { 'Idempotency-Key': newIdempotencyKey() },
+      ),
     onSuccess: () => {
       toast.success('Deposit collected (HKD$50/box)');
       invalidate();
