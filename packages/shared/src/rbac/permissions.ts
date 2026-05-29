@@ -61,6 +61,11 @@ export const PERMISSIONS = {
   PAYMENTS_READ: 'payments.read',
   PAYMENTS_MANAGE: 'payments.manage',
   PAYMENTS_ADJUST: 'payments.adjust',
+
+  // Agents & box-number batches (Phase 2 — agents slice).
+  AGENTS_READ: 'agents.read',
+  AGENTS_MANAGE: 'agents.manage',
+  AGENTS_ISSUE_BATCH: 'agents.issue_batch',
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
@@ -100,6 +105,9 @@ export const ROLE_PERMISSIONS: Record<RoleKey, PermissionKey[]> = {
     PERMISSIONS.PAYMENTS_READ,
     PERMISSIONS.PAYMENTS_MANAGE,
     PERMISSIONS.PAYMENTS_ADJUST,
+    PERMISSIONS.AGENTS_READ,
+    PERMISSIONS.AGENTS_MANAGE,
+    PERMISSIONS.AGENTS_ISSUE_BATCH,
   ],
   [ROLES.WAREHOUSE_STAFF]: [
     PERMISSIONS.WAREHOUSES_READ,
@@ -121,6 +129,7 @@ export const ROLE_PERMISSIONS: Record<RoleKey, PermissionKey[]> = {
     PERMISSIONS.BOXES_MANAGE,
     PERMISSIONS.PAYMENTS_READ,
     PERMISSIONS.PAYMENTS_MANAGE,
+    PERMISSIONS.AGENTS_READ,
   ],
   [ROLES.DISPATCHER]: [
     PERMISSIONS.BRANCHES_READ,
@@ -159,5 +168,6 @@ export const ROLE_PERMISSIONS: Record<RoleKey, PermissionKey[]> = {
     PERMISSIONS.SERVICE_ORDERS_READ,
     PERMISSIONS.BOXES_READ,
     PERMISSIONS.PAYMENTS_READ,
+    PERMISSIONS.AGENTS_READ,
   ],
 };
