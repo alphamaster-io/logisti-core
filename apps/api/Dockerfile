@@ -1,6 +1,6 @@
 # ---------- builder ----------
 FROM node:22-alpine AS builder
-RUN corepack enable
+RUN apk add --no-cache openssl && corepack enable
 
 WORKDIR /repo
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* tsconfig.base.json ./
@@ -14,7 +14,8 @@ RUN pnpm --filter @logisti-core/api build
 
 # ---------- runtime ----------
 FROM node:22-alpine AS runtime
-RUN corepack enable
+# openssl needed at runtime for Prisma's musl engine
+RUN apk add --no-cache openssl && corepack enable
 ENV NODE_ENV=production
 WORKDIR /app
 
