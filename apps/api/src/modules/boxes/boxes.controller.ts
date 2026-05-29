@@ -12,6 +12,7 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PERMISSIONS, createBoxSchema, updateBoxSchema } from '@logisti-core/shared';
 import { Permissions } from '../../common/decorators/permissions.decorator';
+import { RequireIdempotency } from '../../common/decorators/require-idempotency.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user';
 import { BoxesService } from './boxes.service';
@@ -24,6 +25,7 @@ export class BoxesController {
 
   @Post('service-orders/:orderId/boxes')
   @Permissions(PERMISSIONS.BOXES_CREATE)
+  @RequireIdempotency()
   async addToOrder(
     @CurrentUser() user: AuthenticatedUser,
     @Param('orderId') orderId: string,

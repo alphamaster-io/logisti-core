@@ -30,6 +30,8 @@ export const boxSchema = z.object({
   serviceOrderId: z.string(),
   boxTypeCode: boxTypeCodeSchema,
   status: boxStatusSchema,
+  agentId: z.string().nullable(),
+  boxNumberBatchId: z.string().nullable(),
   oversizeInches: z.number().int().nullable(),
   weightKg: decimalLikeSchema.nullable(),
   notes: z.string().nullable(),
@@ -40,9 +42,11 @@ export const boxSchema = z.object({
 });
 export type Box = z.infer<typeof boxSchema>;
 
-// Create payload — adding a box to a service order.
+// Create payload — adding a box to a service order. When `batchId` is set, the
+// box number is allocated from that agent's batch instead of system-generated.
 export const createBoxSchema = z.object({
   boxTypeCode: boxTypeCodeSchema,
+  batchId: z.string().optional(),
   oversizeInches: z.number().int().positive().max(120).optional(),
   weightKg: z.number().positive().max(99999).optional(),
   notes: z.string().max(500).optional(),

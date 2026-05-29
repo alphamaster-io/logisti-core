@@ -5,13 +5,17 @@ import type { CreateBoxDto, UpdateBoxDto } from '@logisti-core/shared';
 import { PrismaService } from '../../prisma/prisma.service';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user';
 import { generateBoxNumber } from './box-number';
+import { AgentsService } from '../agents/agents.service';
 
 @Injectable()
 export class BoxesService {
   private readonly logger = new Logger(BoxesService.name);
   private static readonly NUMBER_RETRY_BUDGET = 5;
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly agents: AgentsService,
+  ) {}
 
   // Convert Prisma's Decimal to its canonical string form. NestJS's
   // ClassSerializerInterceptor enumerates class instances and would otherwise
@@ -50,6 +54,37 @@ export class BoxesService {
       throw new NotFoundException(`box type ${dto.boxTypeCode} is not available`);
     }
 
+    // Agent-allocated path: number comes from an agent's batch, and we
+    // record agentId + batchId on the Box for reporting + commission.
+    if (dto.batchId) {
+      const batch = await this.prisma.boxNumberBatch.findFirst({
+        where: { id: dto.batchId, tenantId: user.tenantId },
+        select: { id: true, agentId: true, status: true },
+      });
+      if (!batch) throw new NotFoundException(`batch ${dto.batchId} not found`);
+      // allocateNextNumber bumps the batch's nextSeq atomically. If the Box
+      // insert below throws, the allocated number is "burned" but unused —
+      // benign (gaps in the batch); we don't try to roll back the counter.
+      const { number } = await this.agents.allocateNextNumber(user, batch.id);
+      const created = await this.prisma.box.create({
+        data: {
+          tenantId: user.tenantId,
+          number,
+          serviceOrderId,
+          boxTypeCode: dto.boxTypeCode,
+          agentId: batch.agentId,
+          boxNumberBatchId: batch.id,
+          oversizeInches: dto.oversizeInches ?? null,
+          weightKg: dto.weightKg ?? null,
+          notes: dto.notes ?? null,
+          createdBy: user.id,
+        },
+      });
+      return this.normalize(created);
+    }
+
+    // System-generated path: opaque 16-char URL-safe number with a small
+    // retry budget for the theoretical collision case.
     let lastErr: unknown;
     for (let attempt = 0; attempt < BoxesService.NUMBER_RETRY_BUDGET; attempt += 1) {
       const number = generateBoxNumber();

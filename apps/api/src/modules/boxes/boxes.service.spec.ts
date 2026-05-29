@@ -19,7 +19,11 @@ describe('BoxesService', () => {
     },
   } as unknown as ConstructorParameters<typeof BoxesService>[0];
 
-  const svc = new BoxesService(prisma);
+  const agents = {
+    allocateNextNumber: jest.fn(),
+  } as unknown as ConstructorParameters<typeof BoxesService>[1];
+
+  const svc = new BoxesService(prisma, agents);
   beforeEach(() => jest.clearAllMocks());
 
   describe('addToOrder', () => {
@@ -109,6 +113,70 @@ describe('BoxesService', () => {
       await svc.remove(user, 'b1');
       const call = (prisma.box.update as jest.Mock).mock.calls[0]![0];
       expect(call.data.deletedAt).toBeInstanceOf(Date);
+    });
+  });
+
+  describe('addToOrder (agent batch)', () => {
+    const prismaWithBatch = prisma as unknown as {
+      boxNumberBatch: { findFirst: jest.Mock };
+    };
+    prismaWithBatch.boxNumberBatch = { findFirst: jest.fn() };
+
+    it('allocates from a batch and records agentId + batchId on the Box', async () => {
+      (prisma.serviceOrder.findFirst as jest.Mock).mockResolvedValue({
+        id: 'o1',
+        status: 'DRAFT',
+      });
+      (prisma.boxType.findUnique as jest.Mock).mockResolvedValue({
+        code: 'KING',
+        isActive: true,
+        deletedAt: null,
+      });
+      prismaWithBatch.boxNumberBatch.findFirst.mockResolvedValue({
+        id: 'bn1',
+        agentId: 'a1',
+        status: 'ACTIVE',
+      });
+      (agents.allocateNextNumber as jest.Mock).mockResolvedValue({
+        number: 'EX-AG-001-000042',
+        seq: 42,
+        batchExhausted: false,
+      });
+      (prisma.box.create as jest.Mock).mockImplementation(({ data }) => ({
+        id: 'b1',
+        ...data,
+      }));
+
+      const out = await svc.addToOrder(user, 'o1', {
+        boxTypeCode: 'KING',
+        batchId: 'bn1',
+      } as never);
+
+      expect(out.id).toBe('b1');
+      expect(agents.allocateNextNumber).toHaveBeenCalledWith(user, 'bn1');
+      const call = (prisma.box.create as jest.Mock).mock.calls[0]![0];
+      expect(call.data.number).toBe('EX-AG-001-000042');
+      expect(call.data.agentId).toBe('a1');
+      expect(call.data.boxNumberBatchId).toBe('bn1');
+    });
+
+    it('404s when the batch is not found', async () => {
+      (prisma.serviceOrder.findFirst as jest.Mock).mockResolvedValue({
+        id: 'o1',
+        status: 'DRAFT',
+      });
+      (prisma.boxType.findUnique as jest.Mock).mockResolvedValue({
+        code: 'KING',
+        isActive: true,
+        deletedAt: null,
+      });
+      prismaWithBatch.boxNumberBatch.findFirst.mockResolvedValue(null);
+
+      await expect(
+        svc.addToOrder(user, 'o1', { boxTypeCode: 'KING', batchId: 'nope' } as never),
+      ).rejects.toThrow(NotFoundException);
+      expect(agents.allocateNextNumber).not.toHaveBeenCalled();
+      expect(prisma.box.create).not.toHaveBeenCalled();
     });
   });
 });
