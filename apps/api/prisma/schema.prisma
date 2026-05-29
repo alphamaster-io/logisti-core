@@ -627,6 +627,7 @@ model PaymentLine {
   tenantId       String
   serviceOrderId String
   boxId          String?
+  agentId        String? // set on AGENT_COMMISSION lines so payouts are queryable per agent
   kind           PaymentLineKind
   // Signed minor units. Charges are positive; discounts/receipts/commissions
   // are negative; corrections carry the offsetting sign. See the capability
@@ -643,11 +644,13 @@ model PaymentLine {
   tenant       Tenant       @relation(fields: [tenantId], references: [id])
   serviceOrder ServiceOrder @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
   box          Box?         @relation(fields: [boxId], references: [id])
+  agent        Agent?       @relation(fields: [agentId], references: [id])
   relatedLine  PaymentLine? @relation("PaymentLineCorrection", fields: [relatedLineId], references: [id])
   corrections  PaymentLine[] @relation("PaymentLineCorrection")
 
   @@index([tenantId, serviceOrderId])
   @@index([tenantId, kind])
+  @@index([tenantId, agentId])
   @@index([tenantId, createdAt])
   @@map("payment_lines")
 }
@@ -687,6 +690,7 @@ model Agent {
   branch           Branch?          @relation(fields: [branchId], references: [id])
   boxNumberBatches BoxNumberBatch[]
   boxes            Box[]
+  paymentLines     PaymentLine[]
 
   @@unique([tenantId, code])
   @@index([tenantId])
