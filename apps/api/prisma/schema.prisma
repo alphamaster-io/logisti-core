@@ -41,6 +41,7 @@ model Tenant {
   activityLogs  ActivityLog[]
   serviceOrders ServiceOrder[]
   boxes         Box[]
+  paymentLines  PaymentLine[]
 
   @@map("tenants")
 }
@@ -505,10 +506,11 @@ model ServiceOrder {
   updatedAt  DateTime  @updatedAt
   deletedAt  DateTime?
 
-  tenant Tenant              @relation(fields: [tenantId], references: [id])
-  branch Branch              @relation(fields: [branchId], references: [id])
-  events ServiceOrderEvent[]
-  boxes  Box[]
+  tenant       Tenant              @relation(fields: [tenantId], references: [id])
+  branch       Branch              @relation(fields: [branchId], references: [id])
+  events       ServiceOrderEvent[]
+  boxes        Box[]
+  paymentLines PaymentLine[]
 
   @@index([tenantId, status])
   @@index([tenantId, branchId, status])
@@ -576,11 +578,65 @@ model Box {
   updatedAt      DateTime  @updatedAt
   deletedAt      DateTime?
 
-  tenant       Tenant       @relation(fields: [tenantId], references: [id])
-  serviceOrder ServiceOrder @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
+  tenant       Tenant        @relation(fields: [tenantId], references: [id])
+  serviceOrder ServiceOrder  @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
+  paymentLines PaymentLine[]
 
   @@index([tenantId, serviceOrderId])
   @@index([tenantId, status])
   @@index([tenantId, createdAt])
   @@map("boxes")
+}
+
+// ─── Payments & deposits ───────────────────────────────────────
+// The money side of every Service Order. Per
+// openspec/changes/align-with-exspeed-workflows/specs/payments-deposits.
+// Append-only ledger: every charge and every receipt is a positive line;
+// corrections are new lines linking the original. Balance is computed,
+// never stored. Multi-currency (HKD/MOP/PHP) — no cross-currency conversion.
+
+enum PaymentLineKind {
+  BOX_DEPOSIT
+  BOX_BALANCE
+  INSTANT_PACK_DISCOUNT
+  TAKE_OUT_BOX_DISCOUNT
+  LOYALTY_REDEMPTION
+  OVERSIZE_SURCHARGE
+  STORAGE_DEPOSIT
+  PAID_STORAGE_CHARGE
+  STORAGE_PICKUP_FEE
+  AGENT_COMMISSION
+  RECEIVED
+  BOUNCED
+  CORRECTION
+}
+
+model PaymentLine {
+  id             String          @id @default(cuid())
+  tenantId       String
+  serviceOrderId String
+  boxId          String?
+  kind           PaymentLineKind
+  // Signed minor units. Charges are positive; discounts/receipts/commissions
+  // are negative; corrections carry the offsetting sign. See the capability
+  // spec's kind table.
+  amount         BigInt
+  currencyCode   String
+  reason         String
+  relatedLineId  String? // for CORRECTION / BOUNCED → the line being reversed
+  accruedAt      DateTime        @default(now())
+  recordedBy     String
+  requestId      String?
+  createdAt      DateTime        @default(now())
+
+  tenant       Tenant       @relation(fields: [tenantId], references: [id])
+  serviceOrder ServiceOrder @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
+  box          Box?         @relation(fields: [boxId], references: [id])
+  relatedLine  PaymentLine? @relation("PaymentLineCorrection", fields: [relatedLineId], references: [id])
+  corrections  PaymentLine[] @relation("PaymentLineCorrection")
+
+  @@index([tenantId, serviceOrderId])
+  @@index([tenantId, kind])
+  @@index([tenantId, createdAt])
+  @@map("payment_lines")
 }

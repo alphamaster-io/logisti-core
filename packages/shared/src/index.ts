@@ -5,5 +5,6 @@ export * from './schemas/common';
 export * from './schemas/boxCatalog';
 export * from './schemas/serviceOrder';
 export * from './schemas/box';
+export * from './schemas/payment';
 export * from './rbac/roles';
 export * from './rbac/permissions';
