@@ -1,6 +1,11 @@
 # ---------- builder ----------
-FROM node:22-alpine AS builder
-RUN apk add --no-cache openssl && corepack enable
+# node:22-slim (debian) instead of alpine: Prisma's engines work out of the
+# box with glibc + openssl 3.x. The alpine/musl path needs hand-installed
+# openssl and still mis-detected the libssl version at runtime.
+FROM node:22-slim AS builder
+RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/* \
+  && corepack enable
 
 WORKDIR /repo
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* tsconfig.base.json ./
@@ -13,9 +18,10 @@ RUN pnpm --filter @logisti-core/shared build
 RUN pnpm --filter @logisti-core/api build
 
 # ---------- runtime ----------
-FROM node:22-alpine AS runtime
-# openssl needed at runtime for Prisma's musl engine
-RUN apk add --no-cache openssl && corepack enable
+FROM node:22-slim AS runtime
+RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/* \
+  && corepack enable
 ENV NODE_ENV=production
 WORKDIR /app
 

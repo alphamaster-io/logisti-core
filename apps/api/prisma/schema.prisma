@@ -10,8 +10,8 @@
 
 generator client {
   provider      = "prisma-client-js"
-  // alpine runtime in Cloud Run + native for local dev
-  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  // debian-slim runtime in Cloud Run + native for local dev
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
