@@ -40,6 +40,7 @@ model Tenant {
   auditLogs     AuditLog[]
   activityLogs  ActivityLog[]
   serviceOrders ServiceOrder[]
+  boxes         Box[]
 
   @@map("tenants")
 }
@@ -504,9 +505,10 @@ model ServiceOrder {
   updatedAt  DateTime  @updatedAt
   deletedAt  DateTime?
 
-  tenant Tenant @relation(fields: [tenantId], references: [id])
-  branch Branch @relation(fields: [branchId], references: [id])
+  tenant Tenant              @relation(fields: [tenantId], references: [id])
+  branch Branch              @relation(fields: [branchId], references: [id])
   events ServiceOrderEvent[]
+  boxes  Box[]
 
   @@index([tenantId, status])
   @@index([tenantId, branchId, status])
@@ -533,4 +535,52 @@ model ServiceOrderEvent {
 
   @@index([tenantId, serviceOrderId, createdAt])
   @@map("service_order_events")
+}
+
+// ─── Boxes ─────────────────────────────────────────────────────
+// Physical box instance attached to a Service Order. Per
+// openspec/changes/align-with-exspeed-workflows.
+// This slice models add/remove boxes while the order is in DRAFT.
+// Pre-printed agent numbers, putaway to bins, and the receive→pack→
+// palletize→containerize→ship→delivered status walk land in follow-up
+// slices alongside the agents / receiving / pallets-containers
+// capabilities.
+
+enum BoxStatus {
+  CREATED
+  RECEIVED
+  PACKED
+  PALLETIZED
+  CONTAINERIZED
+  IN_TRANSIT
+  DELIVERED
+  FAILED_DELIVERY
+  RETURNED
+}
+
+model Box {
+  id             String     @id @default(cuid())
+  tenantId       String
+  number         String     @unique // "B-" + 16-char URL-safe (system) or pre-printed (agent)
+  serviceOrderId String
+  boxTypeCode    BoxTypeCode
+  status         BoxStatus  @default(CREATED)
+  // Oversize tracking. Per the price list: $60 HKD/inch (HK origin) or $30 MOP/inch (Macau).
+  // The longest dimension over 41 inches (KING's long side) is the chargeable overage.
+  oversizeInches Int? // null = not oversized
+  // Optional weight + cubic measurements for billing + carrier handoff. Captured at receipt.
+  weightKg       Decimal? @db.Decimal(7, 2)
+  notes          String?
+  createdBy      String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  tenant       Tenant       @relation(fields: [tenantId], references: [id])
+  serviceOrder ServiceOrder @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, serviceOrderId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
+  @@map("boxes")
 }
