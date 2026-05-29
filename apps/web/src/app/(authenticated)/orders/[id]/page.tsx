@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { PaymentEntryDialog } from '@/components/orders/payment-entry-dialog';
 import { formatDate } from '@/lib/utils';
 
 type Order = {
@@ -242,7 +243,25 @@ export default function OrderDetailPage() {
       </Card>
 
       <Card className="p-4">
-        <h2 className="mb-3 font-semibold">Balance</h2>
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="font-semibold">Balance</h2>
+          <div className="flex gap-2">
+            <PaymentEntryDialog
+              orderId={id}
+              mode="charge"
+              trigger={
+                <Button size="sm" variant="outline">
+                  Add charge
+                </Button>
+              }
+            />
+            <PaymentEntryDialog
+              orderId={id}
+              mode="payment"
+              trigger={<Button size="sm">Record payment</Button>}
+            />
+          </div>
+        </div>
         {balance.data && balance.data.length > 0 ? (
           <table className="w-full text-sm">
             <thead>
