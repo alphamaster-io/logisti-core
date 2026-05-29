@@ -566,10 +566,14 @@ enum BoxStatus {
 model Box {
   id             String     @id @default(cuid())
   tenantId       String
-  number         String     @unique // "B-" + 16-char URL-safe (system) or pre-printed (agent)
+  number         String     @unique // "B-" + 16-char URL-safe (system) or pre-printed agent-allocated
   serviceOrderId String
   boxTypeCode    BoxTypeCode
   status         BoxStatus  @default(CREATED)
+  // When the number came from an agent's pre-printed batch, both are set.
+  // Allows commission accounting + batch-level reporting later.
+  agentId           String?
+  boxNumberBatchId  String?
   // Oversize tracking. Per the price list: $60 HKD/inch (HK origin) or $30 MOP/inch (Macau).
   // The longest dimension over 41 inches (KING's long side) is the chargeable overage.
   oversizeInches Int? // null = not oversized
@@ -581,13 +585,17 @@ model Box {
   updatedAt      DateTime  @updatedAt
   deletedAt      DateTime?
 
-  tenant       Tenant        @relation(fields: [tenantId], references: [id])
-  serviceOrder ServiceOrder  @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
-  paymentLines PaymentLine[]
+  tenant         Tenant          @relation(fields: [tenantId], references: [id])
+  serviceOrder   ServiceOrder    @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
+  agent          Agent?          @relation(fields: [agentId], references: [id])
+  boxNumberBatch BoxNumberBatch? @relation(fields: [boxNumberBatchId], references: [id])
+  paymentLines   PaymentLine[]
 
   @@index([tenantId, serviceOrderId])
   @@index([tenantId, status])
   @@index([tenantId, createdAt])
+  @@index([tenantId, agentId])
+  @@index([boxNumberBatchId])
   @@map("boxes")
 }
 
@@ -678,6 +686,7 @@ model Agent {
   tenant           Tenant           @relation(fields: [tenantId], references: [id])
   branch           Branch?          @relation(fields: [branchId], references: [id])
   boxNumberBatches BoxNumberBatch[]
+  boxes            Box[]
 
   @@unique([tenantId, code])
   @@index([tenantId])
@@ -704,6 +713,7 @@ model BoxNumberBatch {
 
   tenant Tenant @relation(fields: [tenantId], references: [id])
   agent  Agent  @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  boxes  Box[]
 
   @@index([tenantId, agentId])
   @@index([tenantId, status])

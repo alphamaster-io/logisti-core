@@ -85,7 +85,12 @@ export default function OrderDetailPage() {
   };
 
   const addBox = useMutation({
-    mutationFn: () => api.post(`/api/proxy/service-orders/${id}/boxes`, { boxTypeCode: boxType }),
+    mutationFn: () =>
+      api.post(
+        `/api/proxy/service-orders/${id}/boxes`,
+        { boxTypeCode: boxType },
+        { 'Idempotency-Key': newIdempotencyKey() },
+      ),
     onSuccess: () => {
       toast.success('Box added');
       invalidate();
