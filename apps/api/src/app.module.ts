@@ -14,6 +14,7 @@ import { UsersModule } from './modules/users/users.module';
 import { RbacModule } from './modules/rbac/rbac.module';
 import { WarehouseModule } from './modules/warehouse/warehouse.module';
 import { BoxCatalogModule } from './modules/box-catalog/box-catalog.module';
+import { ServiceOrdersModule } from './modules/service-orders/service-orders.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { AuditInterceptor } from './modules/audit/audit.interceptor';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
@@ -63,6 +64,7 @@ import { MiddlewareConsumer, NestModule } from '@nestjs/common';
     RbacModule,
     WarehouseModule,
     BoxCatalogModule,
+    ServiceOrdersModule,
     AuditModule,
   ],
   providers: [
