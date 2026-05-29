@@ -1,4 +1,12 @@
 import 'reflect-metadata';
+
+// BigInt is JSON-serialized as a string so HTTP responses don't lose precision
+// on bigint minor-units columns. The web's Zod schemas (`minorAmountSchema`)
+// accept both string and bigint forms.
+(BigInt.prototype as unknown as { toJSON: () => string }).toJSON = function (this: bigint) {
+  return this.toString();
+};
+
 import { NestFactory, Reflector } from '@nestjs/core';
 import { ClassSerializerInterceptor, ValidationPipe, VersioningType } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
