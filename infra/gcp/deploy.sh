@@ -149,16 +149,14 @@ done
 # ─── 6. Build + push images via Cloud Build ─────────────────────────────────
 say "Building API image via Cloud Build"
 gcloud builds submit \
-  --tag "$API_IMAGE" \
-  --file apps/api/Dockerfile \
-  --machine-type=e2-highcpu-8 \
+  --config=infra/gcp/cloudbuild.api.yaml \
+  --substitutions=_IMAGE="$API_IMAGE" \
   .
 
 say "Building Web image via Cloud Build"
 gcloud builds submit \
-  --tag "$WEB_IMAGE" \
-  --file apps/web/Dockerfile \
-  --machine-type=e2-highcpu-8 \
+  --config=infra/gcp/cloudbuild.web.yaml \
+  --substitutions=_IMAGE="$WEB_IMAGE" \
   .
 ok "Images pushed"
 
@@ -182,7 +180,7 @@ gcloud run deploy "$API_SERVICE" \
   --max-instances=1 \
   --timeout=300 \
   --allow-unauthenticated \
-  --set-env-vars="NODE_ENV=production,LOG_LEVEL=info,API_GLOBAL_PREFIX=api,PORT=8080,REDIS_URL=,DATABASE_URL=${DATABASE_URL}" \
+  --set-env-vars="NODE_ENV=production,LOG_LEVEL=info,API_GLOBAL_PREFIX=api,REDIS_URL=,DATABASE_URL=${DATABASE_URL}" \
   --set-secrets="JWT_ACCESS_SECRET=logisti-jwt-access-secret:latest,JWT_REFRESH_SECRET=logisti-jwt-refresh-secret:latest" \
   --quiet
 
@@ -201,7 +199,7 @@ gcloud run deploy "$WEB_SERVICE" \
   --max-instances=1 \
   --timeout=60 \
   --allow-unauthenticated \
-  --set-env-vars="NODE_ENV=production,PORT=8080,NEXT_PUBLIC_API_BASE_URL=${API_URL}/api/v1,API_BASE_URL=${API_URL}/api/v1" \
+  --set-env-vars="NODE_ENV=production,NEXT_PUBLIC_API_BASE_URL=${API_URL}/api/v1,API_BASE_URL=${API_URL}/api/v1" \
   --quiet
 
 WEB_URL=$(gcloud run services describe "$WEB_SERVICE" --region="$REGION" --format='value(status.url)')

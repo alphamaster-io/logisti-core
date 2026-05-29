@@ -9,7 +9,9 @@
 //  - amounts are bigint minor units + currency code, never floats
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // debian-slim runtime in Cloud Run + native for local dev
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
