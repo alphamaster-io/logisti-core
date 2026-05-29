@@ -4,7 +4,9 @@ import { randomBytes } from 'node:crypto';
 // service-orders spec. Format: 16 chars of base32 alphabet (no padding).
 // 16 chars × 5 bits = 80 bits.
 
-const ALPHABET = 'ABCDEFGHIJKLMNPQRSTUVWXYZ23456789'; // 32 chars, ambiguous chars (0OI1L) dropped
+// 32 chars: A-Z without O (visually close to 0) + 2-9 (0 and 1 already out).
+// I, L, 1 collisions are tolerated — customers scan QR codes, not transcribe.
+const ALPHABET = 'ABCDEFGHIJKLMNPQRSTUVWXYZ23456789';
 
 export function generateOrderNumber(): string {
   const bytes = randomBytes(10); // 80 bits
